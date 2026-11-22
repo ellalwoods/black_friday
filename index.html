@@ -240,7 +240,7 @@ function card(it){
       ${it.maxPrice!=null?`<div class="max">Your max ${aud(it.maxPrice)}</div>`:""}
       ${it.scanNote?`<div class="scan">${esc(it.scanNote)}</div>`:""}
       <div class="actions">
-        ${link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop ↗</a>`:""}
+        ${link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop</a>`:""}
         <button type="button" class="btn ghost" data-edit="${esc(it.id)}">Edit</button>
       </div>
     </div></article>`;
