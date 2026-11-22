@@ -117,13 +117,15 @@
       "maxPrice": null,
       "priority": 2,
       "notes": "",
-      "image": null,
+      "image": "images/2ef8b2907c.jpg",
       "imageSrc": "https://www.forevernew.com.au/cdn/shop/files/30604001_F_ff2199cf-6e7f-42a1-9a75-50d4b46856fd.jpg?v=1790742991",
       "status": "full",
       "salePrice": null,
       "checkedAt": "2026-11-22T09:10:39+00:00",
       "scanNote": "",
-      "addedAt": "2026-11-22T09:10:39+00:00"
+      "addedAt": "2026-11-22T09:10:39+00:00",
+      "stockCheckedAt": "2026-11-22T09:10:52+00:00",
+      "sizeNote": "Size 8 in stock"
     }
   ]
 }
