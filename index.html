@@ -148,7 +148,8 @@ section.group{padding-top:44px}
 
   <div class="toolbar" role="toolbar" aria-label="Sort and filter">
     <div class="seg" role="group" aria-label="Group by">
-      <button type="button" id="gBrand" aria-pressed="true">By brand</button>
+      <button type="button" id="gStatus" aria-pressed="true">By sale</button>
+      <button type="button" id="gBrand" aria-pressed="false">By brand</button>
       <button type="button" id="gType" aria-pressed="false">By type</button>
     </div>
     <div class="chips" id="chips"></div>
@@ -190,7 +191,7 @@ const REPO="ellalwoods/black_friday";
 const TYPES=["Tops","Knitwear","Dresses","Skirts","Pants & jeans","Outerwear","Tailoring","Activewear","Swim","Shoes","Bags","Jewellery","Accessories","Beauty","Home","Other"];
 const PRIO={1:"Only if cheap",2:"Want",3:"Must have"};
 let items=[], meta={}, loaded=false;
-let groupBy="brand", typeFilter=null, saleOnly=false, editing=null, delArmed=false;
+let groupBy="status", typeFilter=null, saleOnly=false, editing=null, delArmed=false;
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -254,16 +255,18 @@ function render(){
   const s=shown();
   if(!s.length){list.innerHTML=pre+`${items.length?'<div class="empty"><p>Nothing matches these filters.</p></div>':""}`;return}
   const groups=new Map();
-  for(const it of s){const k=groupBy==="brand"?(it.brand||"Unbranded"):(it.type||"Other");if(!groups.has(k))groups.set(k,[]);groups.get(k).push(it)}
+  const STATUS=["On sale","Not on sale","Unavailable"];
+  const statusOf=it=>it.status==="soldout"?"Unavailable":it.status==="sale"?"On sale":"Not on sale";
+  for(const it of s){const k=groupBy==="status"?statusOf(it):groupBy==="brand"?(it.brand||"Unbranded"):(it.type||"Other");if(!groups.has(k))groups.set(k,[]);groups.get(k).push(it)}
   let keys=[...groups.keys()];
-  keys=groupBy==="brand"?keys.sort((a,b)=>a.localeCompare(b)):keys.sort((a,b)=>TYPES.indexOf(a)-TYPES.indexOf(b));
+  keys=groupBy==="status"?keys.sort((a,b)=>STATUS.indexOf(a)-STATUS.indexOf(b)):groupBy==="brand"?keys.sort((a,b)=>a.localeCompare(b)):keys.sort((a,b)=>TYPES.indexOf(a)-TYPES.indexOf(b));
   list.innerHTML=pre+keys.map(k=>{const g=sortItems(groups.get(k));
     const sv=g.filter(i=>i.status==="sale"&&i.usualPrice&&i.salePrice!=null).reduce((a,i)=>a+(i.usualPrice-i.salePrice),0);
     return `<section class="group"><div class="ghead"><h2>${esc(k)}</h2><span class="cnt">${g.length} ${g.length===1?"piece":"pieces"}</span>${sv>0?`<span class="sv">${aud(sv)} off</span>`:""}</div><div class="grid">${g.map(card).join("")}</div></section>`}).join("");
 }
 
-$("#gBrand").onclick=()=>{groupBy="brand";$("#gBrand").setAttribute("aria-pressed","true");$("#gType").setAttribute("aria-pressed","false");render()};
-$("#gType").onclick=()=>{groupBy="type";$("#gType").setAttribute("aria-pressed","true");$("#gBrand").setAttribute("aria-pressed","false");render()};
+function setGroup(g){groupBy=g;for(const [id,v] of [["gStatus","status"],["gBrand","brand"],["gType","type"]])$("#"+id).setAttribute("aria-pressed",String(g===v));render()}
+$("#gStatus").onclick=()=>setGroup("status");$("#gBrand").onclick=()=>setGroup("brand");$("#gType").onclick=()=>setGroup("type");
 $("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;if(b.hasAttribute("data-sale"))saleOnly=!saleOnly;else typeFilter=b.dataset.type||null;render()});
 $("#list").addEventListener("click",e=>{const ed=e.target.closest("[data-edit]");if(ed)openForm(items.find(i=>i.id===ed.dataset.edit));if(e.target.closest("[data-add]"))openForm(null)});
 $("#addBtn").onclick=()=>openForm(null);
