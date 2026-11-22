@@ -163,15 +163,15 @@ section.group{padding-top:44px}
   <form class="modal" id="form" role="dialog" aria-modal="true" aria-labelledby="mTitle" novalidate>
     <h3 id="mTitle">Add a piece</h3>
     <div class="fgrid">
-      <div class="f full"><label for="fUrl">Product link</label><input id="fUrl" type="url" placeholder="https://" required></div>
-      <div class="f"><label for="fBrand">Brand</label><input id="fBrand" list="brandList" required><datalist id="brandList"></datalist></div>
+      <div class="f full"><label for="fUrl">Product link</label><input id="fUrl" type="url" placeholder="Paste the link from the shop" required></div>
+      <div class="f"><label for="fBrand">Brand</label><input id="fBrand" list="brandList" placeholder="Leave blank to fill in"><datalist id="brandList"></datalist></div>
       <div class="f"><label for="fType">Type</label><select id="fType"></select></div>
-      <div class="f full"><label for="fName">Item</label><input id="fName" placeholder="e.g. Linen midi dress" required></div>
+      <div class="f full"><label for="fName">Item</label><input id="fName" placeholder="Leave blank to fill in"></div>
       <div class="f"><label for="fVariant">Size / colour</label><input id="fVariant" placeholder="e.g. AU 10, black"></div>
-      <div class="f"><label for="fUsual">Usual price (AUD)</label><input id="fUsual" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="f"><label for="fUsual">Usual price (AUD)</label><input id="fUsual" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Leave blank to fill in"></div>
       <div class="f"><label for="fMax">Most I'd pay (AUD)</label><input id="fMax" type="number" min="0" step="0.01" inputmode="decimal"></div>
       <div class="f"><label for="fPrio">Priority</label><select id="fPrio"><option value="2">Want</option><option value="3">Must have</option><option value="1">Only if cheap</option></select></div>
-      <div class="f full"><p class="hint">Next you'll land on GitHub with these details filled in. Drag a photo in there if you like, then press <strong>Create</strong>. With no photo, the site tries to use the shop's own product photo. Your piece appears here a minute or two later.</p></div>
+      <div class="f full"><p class="hint">Only the link is needed. Anything you leave blank (brand, item, price, type and photo) is filled in from the shop's page. Next you'll land on GitHub: press <strong>Create</strong> and the piece appears here a minute or two later. Add your size and the most you'd pay so the price checks can flag a deal.</p></div>
       <div class="f full"><label for="fNotes">Notes</label><textarea id="fNotes" placeholder="Anything to remember, like 'runs small'"></textarea></div>
     </div>
     <div class="err" id="fErr" role="alert"></div>
@@ -270,13 +270,13 @@ $("#addBtn").onclick=()=>openForm(null);
 $("#cancelBtn").onclick=closeForm;
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeForm()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#scrim").classList.contains("open"))closeForm()});
-$("#fType").innerHTML=TYPES.map(t=>`<option>${esc(t)}</option>`).join("");
+$("#fType").innerHTML=`<option value="">Work it out for me</option>`+TYPES.map(t=>`<option>${esc(t)}</option>`).join("");
 
 function openForm(it){
   editing=it||null;delArmed=false;
   $("#mTitle").textContent=it?"Edit piece":"Add a piece";
   $("#fUrl").value=it?.url||"";$("#fBrand").value=it?.brand||"";$("#fName").value=it?.name||"";
-  $("#fType").value=it?.type||"Tops";$("#fVariant").value=it?.variant||"";
+  $("#fType").value=it?.type||"";$("#fVariant").value=it?.variant||"";
   $("#fUsual").value=it?.usualPrice??"";$("#fMax").value=it?.maxPrice??"";$("#fPrio").value=String(it?.priority||2);
   $("#fNotes").value=it?.notes||"";$("#fErr").textContent="";
   $("#delBtn").hidden=!it;$("#delBtn").textContent="Remove";
@@ -296,7 +296,6 @@ $("#form").addEventListener("submit",e=>{
   e.preventDefault();
   const url=$("#fUrl").value.trim(),brand=$("#fBrand").value.trim(),name=$("#fName").value.trim();
   if(!safeUrl(url)){$("#fErr").textContent="Paste the full product link, starting with https://";return}
-  if(!brand||!name){$("#fErr").textContent="Add the brand and the item name.";return}
   const lines=[
     editing?`ID: ${editing.id}`:null,
     `Link: ${url}`,`Brand: ${brand}`,`Item: ${name}`,`Type: ${$("#fType").value}`,
@@ -304,7 +303,8 @@ $("#form").addEventListener("submit",e=>{
     `Priority: ${PRIO[$("#fPrio").value]||"Want"}`,`Notes: ${$("#fNotes").value.trim().replace(/\n/g," ")}`,
     "",editing?"Photo: drag a new photo here to replace the current one (optional)":"Photo: drag a photo here (optional)",""
   ].filter(l=>l!==null);
-  go(issueUrl(`${editing?"Edit":"Add"}: ${brand} ${name}`,lines.join("\n")));
+  let label=[brand,name].filter(Boolean).join(" ");if(!label){try{label=new URL(url).hostname.replace(/^www\./,"")}catch(_){label="new piece"}}
+  go(issueUrl(`${editing?"Edit":"Add"}: ${label}`,lines.join("\n")));
 });
 
 (async()=>{
