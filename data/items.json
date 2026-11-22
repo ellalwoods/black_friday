@@ -123,6 +123,25 @@
       "addedAt": "2026-11-22T09:09:59+00:00",
       "stockCheckedAt": "2026-11-22T09:10:18+00:00",
       "sizeNote": "Size 8 sold out"
+    },
+    {
+      "id": "2ef8b2907c",
+      "url": "https://www.forevernew.com.au/products/emery-panel-midi-dress-soft-daffodil?variant=45419227152453",
+      "brand": "Forever New",
+      "name": "Emery Panel Midi Dress",
+      "type": "Dresses",
+      "variant": "8 · Soft daffodil",
+      "usualPrice": 189.99,
+      "maxPrice": null,
+      "priority": 2,
+      "notes": "",
+      "image": null,
+      "imageSrc": "https://www.forevernew.com.au/cdn/shop/files/30604001_F_ff2199cf-6e7f-42a1-9a75-50d4b46856fd.jpg?v=1790742991",
+      "status": "full",
+      "salePrice": null,
+      "checkedAt": "2026-11-22T09:10:39+00:00",
+      "scanNote": "",
+      "addedAt": "2026-11-22T09:10:39+00:00"
     }
   ]
 }

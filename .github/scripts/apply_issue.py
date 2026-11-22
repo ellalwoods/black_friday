@@ -235,6 +235,10 @@ def shop_details(page_url):
         out["name"] = name[:200]
     if out.get("brand"):
         out["brand"] = html.unescape(str(out["brand"])).strip()[:100]
+    for k in ("brand", "name"):
+        v = out.get(k)
+        if isinstance(v, str) and v.isupper() and len(v) > 3:
+            out[k] = v.title()
     return out
 
 

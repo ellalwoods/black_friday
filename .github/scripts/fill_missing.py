@@ -25,9 +25,12 @@ def shopify_stock(url, size):
         return None
     raw, _ = fetch(f"{u.scheme}://{u.netloc}{u.path.rstrip('/')}.js", 3_000_000)
     d = json.loads(raw.decode("utf-8", "ignore"))
+    norm = lambda x: x.strip().upper().lstrip("0") or "0"  # noqa: E731
+    want = norm(size)
     for v in d.get("variants", []):
-        opts = [str(o).strip().upper() for o in (v.get("options") or [])]
-        if size in opts or size in [p.strip() for p in str(v.get("title", "")).upper().split("/")]:
+        opts = [norm(str(o)) for o in (v.get("options") or [])]
+        opts += [norm(p) for p in str(v.get("title", "")).split("/")]
+        if want in opts:
             return bool(v.get("available"))
     return None
 
