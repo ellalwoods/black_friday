@@ -30,13 +30,15 @@
       "maxPrice": null,
       "priority": 2,
       "notes": "",
-      "image": null,
+      "image": "images/e8c70e58ef.jpg",
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009325_ARDEN_MAXI_DRESS_PAISLEY_CHECK-20.jpg?v=1793225483&width=1200",
-      "status": "full",
+      "status": "soldout",
       "salePrice": null,
       "checkedAt": "2026-11-22T09:09:59+00:00",
       "scanNote": "",
-      "addedAt": "2026-11-22T09:09:59+00:00"
+      "addedAt": "2026-11-22T09:09:59+00:00",
+      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
+      "sizeNote": "Size 8 sold out"
     },
     {
       "id": "52f3fc30be",
@@ -49,13 +51,15 @@
       "maxPrice": null,
       "priority": 2,
       "notes": "",
-      "image": null,
+      "image": "images/52f3fc30be.jpg",
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009223_CATALINE_MAXI_DRESS_PRINT-33.jpg?crop=center&height=1200&v=1791777127&width=1200",
       "status": "full",
       "salePrice": null,
       "checkedAt": "2026-11-22T09:09:59+00:00",
       "scanNote": "",
-      "addedAt": "2026-11-22T09:09:59+00:00"
+      "addedAt": "2026-11-22T09:09:59+00:00",
+      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
+      "sizeNote": "Size 8 in stock"
     },
     {
       "id": "a9d3e96d3c",
@@ -68,13 +72,15 @@
       "maxPrice": null,
       "priority": 2,
       "notes": "",
-      "image": null,
+      "image": "images/a9d3e96d3c.jpg",
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009186_MARIETTA_DRESS_WHITE-070.jpg?crop=center&height=1200&v=1790747242&width=1200",
       "status": "full",
       "salePrice": null,
       "checkedAt": "2026-11-22T09:09:59+00:00",
       "scanNote": "",
-      "addedAt": "2026-11-22T09:09:59+00:00"
+      "addedAt": "2026-11-22T09:09:59+00:00",
+      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
+      "sizeNote": "Size 8 in stock"
     },
     {
       "id": "fb68337b22",
@@ -87,13 +93,15 @@
       "maxPrice": null,
       "priority": 2,
       "notes": "",
-      "image": null,
+      "image": "images/fb68337b22.jpg",
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009099_JOEY_TOP_SPOT_12-11.jpg?crop=center&height=1200&v=1787293316&width=1200",
       "status": "sale",
       "salePrice": 90.0,
       "checkedAt": "2026-11-22T09:09:59+00:00",
       "scanNote": "25% off promotion",
-      "addedAt": "2026-11-22T09:09:59+00:00"
+      "addedAt": "2026-11-22T09:09:59+00:00",
+      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
+      "sizeNote": "Size 8 in stock"
     },
     {
       "id": "989bb2ec30",
@@ -106,13 +114,15 @@
       "maxPrice": null,
       "priority": 2,
       "notes": "",
-      "image": null,
+      "image": "images/989bb2ec30.jpg",
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009099_JOEY_TOP_SPOT_12-11_60723ff2-5276-4e99-8d4e-f6c347d53ae2.jpg?crop=center&height=1200&v=1787293624&width=1200",
-      "status": "sale",
+      "status": "soldout",
       "salePrice": 105.0,
       "checkedAt": "2026-11-22T09:09:59+00:00",
       "scanNote": "25% off promotion",
-      "addedAt": "2026-11-22T09:09:59+00:00"
+      "addedAt": "2026-11-22T09:09:59+00:00",
+      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
+      "sizeNote": "Size 8 sold out"
     }
   ]
 }
