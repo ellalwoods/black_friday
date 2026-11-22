@@ -1,0 +1,40 @@
+name: Fill photos and stock
+on:
+  push:
+    branches: [main]
+    paths: [data/items.json]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: wishlist
+  cancel-in-progress: false
+jobs:
+  fill:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.fill.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
+      - id: fill
+        run: |
+          out=$(python .github/scripts/fill_missing.py)
+          if [ "$out" = "changed" ]; then echo "changed=true" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.fill.outputs.changed == 'true'
+        run: |
+          git config user.name "wishlist-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data images
+          git commit -m "Wishlist: add photos and size stock"
+          git pull --rebase origin main
+          git push origin HEAD:main
+  publish:
+    needs: fill
+    if: needs.fill.outputs.changed == 'true'
+    uses: ./.github/workflows/deploy.yml

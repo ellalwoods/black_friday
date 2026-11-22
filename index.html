@@ -235,7 +235,7 @@ function card(it){
     <div class="body">
       <div class="brand">${esc(it.brand)}</div>
       <div class="name">${esc(it.name)}</div>
-      ${it.variant?`<div class="variant">${esc(it.variant)}</div>`:""}
+      ${it.variant?`<div class="variant">${esc(it.variant)}${it.sizeNote?` · ${esc(it.sizeNote)}`:""}</div>`:""}
       <div class="price">${priceHtml}</div>
       ${it.maxPrice!=null?`<div class="max">Your max ${aud(it.maxPrice)}</div>`:""}
       ${it.scanNote?`<div class="scan">${esc(it.scanNote)}</div>`:""}
