@@ -83,7 +83,6 @@ section.group{padding-top:44px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:32px 24px}
 @media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}
 .card{display:flex;flex-direction:column;min-width:0}
-.card.example{opacity:.7}
 .ph{position:relative;aspect-ratio:3/4;background:var(--soft);overflow:hidden}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .mono{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-style:italic;font-size:54px;color:var(--muted);opacity:.6}
@@ -190,11 +189,6 @@ section.group{padding-top:44px}
 const REPO="ellalwoods/black_friday";
 const TYPES=["Tops","Knitwear","Dresses","Skirts","Pants & jeans","Outerwear","Tailoring","Activewear","Swim","Shoes","Bags","Jewellery","Accessories","Beauty","Home","Other"];
 const PRIO={1:"Only if cheap",2:"Want",3:"Must have"};
-const EXAMPLES=[
- {id:"ex1",example:true,brand:"Example brand",name:"Relaxed linen shirt",type:"Tops",variant:"AU 10, white",usualPrice:149,maxPrice:110,salePrice:104.3,status:"sale",url:"#"},
- {id:"ex2",example:true,brand:"Example brand",name:"Leather ballet flats",type:"Shoes",variant:"EU 38",usualPrice:220,maxPrice:160,status:"full",url:"#"},
- {id:"ex3",example:true,brand:"Another label",name:"Wool-blend coat",type:"Outerwear",variant:"S, camel",usualPrice:450,maxPrice:300,status:"unchecked",url:"#"}
-];
 let items=[], meta={}, loaded=false;
 let groupBy="brand", typeFilter=null, saleOnly=false, editing=null, delArmed=false;
 
@@ -206,7 +200,7 @@ const safeImg=p=>/^images\/[A-Za-z0-9._-]+$/.test(p||"")?p:null;
 function pctOff(it){return (it.salePrice!=null&&it.usualPrice)?Math.round((1-it.salePrice/it.usualPrice)*100):null}
 function isHit(it){return it.status==="sale"&&it.salePrice!=null&&it.maxPrice!=null&&it.salePrice<=it.maxPrice}
 function fmtWhen(iso){if(!iso)return"";const d=new Date(iso);return isNaN(d)?"":d.toLocaleString("en-AU",{weekday:"short",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",timeZone:"Australia/Brisbane"})}
-function src(){return items.length?items:(loaded?EXAMPLES:[])}
+function src(){return items}
 function shown(){return src().filter(it=>(!typeFilter||it.type===typeFilter)&&(!saleOnly||it.status==="sale"))}
 
 function renderStats(){
@@ -220,7 +214,7 @@ function renderStats(){
   if(meta.lastRun)$("#scanline").textContent="Checked "+fmtWhen(meta.lastRun);
 }
 function renderChips(){
-  const s=items.length?items:EXAMPLES;
+  const s=items;
   const present=TYPES.filter(t=>s.some(i=>i.type===t));
   $("#chips").innerHTML=`<button type="button" class="chip salechip" data-sale aria-pressed="${saleOnly}">On sale</button>`+
    `<button type="button" class="chip" data-type="" aria-pressed="${!typeFilter}">All</button>`+
@@ -234,11 +228,10 @@ function card(it){
     ?`<span class="now s">${aud(it.salePrice)}</span>${it.usualPrice?`<span class="was">${aud(it.usualPrice)}</span>`:""}`
     :(it.usualPrice?`<span class="now">${aud(it.usualPrice)}</span>`:"");
   const link=safeUrl(it.url);
-  return `<article class="card${it.example?" example":""}">
+  return `<article class="card">
     <div class="ph"><div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>${im?`<img src="${esc(im)}" alt="${esc(it.name)}" loading="lazy" onerror="this.remove()">`:""}
       ${off>0&&it.status==="sale"?`<span class="badge">−${off}%</span>`:""}
-      ${it.example?`<span class="ex">Example</span>`:""}
-      <span class="stchip ${esc(stc)}">${st}</span></div>
+            <span class="stchip ${esc(stc)}">${st}</span></div>
     <div class="body">
       <div class="brand">${esc(it.brand)}</div>
       <div class="name">${esc(it.name)}</div>
@@ -248,7 +241,7 @@ function card(it){
       ${it.scanNote?`<div class="scan">${esc(it.scanNote)}</div>`:""}
       <div class="actions">
         ${link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop ↗</a>`:""}
-        ${it.example?"":`<button type="button" class="btn ghost" data-edit="${esc(it.id)}">Edit</button>`}
+        <button type="button" class="btn ghost" data-edit="${esc(it.id)}">Edit</button>
       </div>
     </div></article>`;
 }
@@ -259,7 +252,7 @@ function render(){
   let pre="";
   if(!items.length)pre=`<div class="empty"><h2>Start your edit</h2><p>Add each piece you're eyeing with its link, size and the most you'd pay. You can also send links to Claude in chat. On each check date Claude visits every link, records the sale price and flags what's dropped under your price.</p><p><button type="button" class="btn accent" data-add>+ Add your first piece</button></p></div>`;
   const s=shown();
-  if(!s.length){list.innerHTML=pre+`<div class="empty"><p>Nothing matches these filters.</p></div>`;return}
+  if(!s.length){list.innerHTML=pre+`${items.length?'<div class="empty"><p>Nothing matches these filters.</p></div>':""}`;return}
   const groups=new Map();
   for(const it of s){const k=groupBy==="brand"?(it.brand||"Unbranded"):(it.type||"Other");if(!groups.has(k))groups.set(k,[]);groups.get(k).push(it)}
   let keys=[...groups.keys()];
