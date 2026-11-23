@@ -452,7 +452,9 @@ function readBought(){try{return JSON.parse(localStorage.getItem("bf_bought")||"
 function writeBought(m){try{localStorage.setItem("bf_bought",JSON.stringify(m))}catch(_){}}
 function applyBought(){const m=readBought();for(const it of items){const b=m[it.id];
   if(b){it.bought=true;it.boughtAt=b.boughtAt;it.boughtPrice=b.boughtPrice}else if(!it._serverBought){delete it.bought;delete it.boughtAt;delete it.boughtPrice}}}
-function markServer(list){for(const it of list)if(it.bought)it._serverBought=true;return list}
+function readRemoved(){try{return JSON.parse(localStorage.getItem("bf_removed")||"{}")||{}}catch(_){return{}}}
+function writeRemoved(m){try{localStorage.setItem("bf_removed",JSON.stringify(m))}catch(_){}}
+function markServer(list){const rm=readRemoved();list=list.filter(i=>!rm[i.id]);for(const it of list)if(it.bought)it._serverBought=true;return list}
 /* ---------- saving straight to GitHub ---------- */
 const GH="https://api.github.com/repos/"+REPO;
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
@@ -524,12 +526,8 @@ const nowIso=()=>new Date().toISOString().replace(/\.\d+Z$/,"+00:00");
 
 $("#delBtn").onclick=()=>{
   if(!delArmed){delArmed=true;$("#delBtn").textContent="Tap again to remove";return}
-  const id=editing.id,img=editing.image;
-  needToken(async()=>{
-    try{$("#delBtn").disabled=true;await mutate(d=>{d.items=(d.items||[]).filter(i=>i.id!==id)},"Remove "+editing.brand+" "+editing.name);
-      closeForm();toast("Removed");if(safeImg(img))deleteFile(img)}
-    catch(err){$("#fErr").textContent=friendly(err)}finally{$("#delBtn").disabled=false}
-  });
+  const m=readRemoved();m[editing.id]=nowIso();writeRemoved(m);
+  items=items.filter(i=>i.id!==editing.id);closeForm();render();toast("Removed");
 };
 $("#form").addEventListener("submit",e=>{
   e.preventDefault();
