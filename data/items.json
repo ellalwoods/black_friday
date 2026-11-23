@@ -1,5 +1,5 @@
 {
-  "lastRun": null,
+  "lastRun": "2026-11-23T21:11:27+00:00",
   "items": [
     {
       "id": "e8c70e58ef",
@@ -14,13 +14,12 @@
       "notes": "",
       "image": "images/e8c70e58ef.jpg",
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009325_ARDEN_MAXI_DRESS_PAISLEY_CHECK-20.jpg?v=1793225483&width=1200",
-      "status": "soldout",
+      "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-22T09:09:59+00:00",
+      "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
-      "sizeNote": "Size 8 sold out"
+      "sizeNote": null
     },
     {
       "id": "52f3fc30be",
@@ -37,11 +36,10 @@
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009223_CATALINE_MAXI_DRESS_PRINT-33.jpg?crop=center&height=1200&v=1791777127&width=1200",
       "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-22T09:09:59+00:00",
+      "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
-      "sizeNote": "Size 8 in stock"
+      "sizeNote": null
     },
     {
       "id": "a9d3e96d3c",
@@ -58,11 +56,10 @@
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009186_MARIETTA_DRESS_WHITE-070.jpg?crop=center&height=1200&v=1790747242&width=1200",
       "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-22T09:09:59+00:00",
+      "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
-      "sizeNote": "Size 8 in stock"
+      "sizeNote": null
     },
     {
       "id": "fb68337b22",
@@ -79,11 +76,10 @@
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009099_JOEY_TOP_SPOT_12-11.jpg?crop=center&height=1200&v=1787293316&width=1200",
       "status": "sale",
       "salePrice": 90.0,
-      "checkedAt": "2026-11-22T09:09:59+00:00",
+      "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "25% off promotion",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
-      "sizeNote": "Size 8 in stock",
+      "sizeNote": null,
       "saleKind": "promo"
     },
     {
@@ -99,13 +95,12 @@
       "notes": "",
       "image": "images/989bb2ec30.jpg",
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009099_JOEY_TOP_SPOT_12-11_60723ff2-5276-4e99-8d4e-f6c347d53ae2.jpg?crop=center&height=1200&v=1787293624&width=1200",
-      "status": "soldout",
+      "status": "sale",
       "salePrice": 105.0,
-      "checkedAt": "2026-11-22T09:09:59+00:00",
+      "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "25% off promotion",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "stockCheckedAt": "2026-11-22T09:10:18+00:00",
-      "sizeNote": "Size 8 sold out",
+      "sizeNote": null,
       "saleKind": "promo"
     },
     {
@@ -123,11 +118,10 @@
       "imageSrc": "https://www.forevernew.com.au/cdn/shop/files/30604001_F_ff2199cf-6e7f-42a1-9a75-50d4b46856fd.jpg?v=1790742991",
       "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-22T09:10:39+00:00",
-      "scanNote": "",
+      "checkedAt": "2026-11-23T21:11:27+00:00",
+      "scanNote": "No Black Friday discount yet",
       "addedAt": "2026-11-22T09:10:39+00:00",
-      "stockCheckedAt": "2026-11-22T09:10:52+00:00",
-      "sizeNote": "Size 8 in stock"
+      "sizeNote": null
     },
     {
       "id": "50939c71c1",
@@ -141,13 +135,13 @@
       "priority": 2,
       "notes": "",
       "image": "images/50939c71c1.jpg",
-      "status": "full",
-      "salePrice": null,
-      "checkedAt": "2026-11-23T04:17:35+00:00",
-      "scanNote": "Full price when added",
+      "status": "sale",
+      "salePrice": 90.0,
+      "checkedAt": "2026-11-23T21:11:27+00:00",
+      "scanNote": "Black Friday: 25% off almost everything",
       "addedAt": "2026-11-23T03:45:05+00:00",
-      "stockCheckedAt": "2026-11-23T03:45:17+00:00",
-      "sizeNote": "Size 8 in stock"
+      "sizeNote": null,
+      "saleKind": "promo"
     },
     {
       "id": "f5fb2c5c70",
@@ -163,11 +157,10 @@
       "image": "images/f5fb2c5c70.jpg",
       "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-23T06:47:51+00:00",
-      "scanNote": "Full price when added",
+      "checkedAt": "2026-11-23T21:11:27+00:00",
+      "scanNote": "Not in Sheike's 25% off edit",
       "addedAt": "2026-11-23T06:47:39+00:00",
-      "sizeNote": "Size S in stock",
-      "stockCheckedAt": "2026-11-23T06:50:03+00:00"
+      "sizeNote": null
     },
     {
       "id": "c2668c3a25",
@@ -181,13 +174,12 @@
       "priority": 2,
       "notes": "",
       "image": "images/c2668c3a25.jpg",
-      "status": "soldout",
+      "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-23T06:47:51+00:00",
-      "scanNote": "Full price when added",
+      "checkedAt": "2026-11-23T21:11:27+00:00",
+      "scanNote": "Not in Sheike's 25% off edit",
       "addedAt": "2026-11-23T06:47:39+00:00",
-      "sizeNote": "Size S sold out",
-      "stockCheckedAt": "2026-11-23T06:50:03+00:00"
+      "sizeNote": null
     }
   ],
   "schema": 2
