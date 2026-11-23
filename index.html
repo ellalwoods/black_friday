@@ -166,6 +166,9 @@ section.group{padding-top:44px}
 .drop p{margin:0;font-size:13px;color:var(--muted)}
 .mfoot{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .mfoot .sp{flex:1}
+#connect{z-index:25}
+.steps{margin:0;padding-left:20px;font-size:14px;display:grid;gap:4px}
+.steps a{color:var(--ink);font-weight:600}
 .hint{margin:0;font-size:13px;color:var(--muted);background:var(--soft);padding:12px}
 .err{color:var(--ink);font-weight:600;font-size:13px;min-height:1em}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;font-size:14px;border-radius:999px;display:none;z-index:30}
@@ -198,6 +201,22 @@ section.group{padding-top:44px}
   <main id="list"></main>
 </div>
 
+<div class="scrim" id="connect" aria-hidden="true">
+  <form class="modal" id="cForm" role="dialog" aria-modal="true" aria-labelledby="cTitle" novalidate>
+    <h3 id="cTitle">Connect this device</h3>
+    <p class="hint">To save changes, the app needs a GitHub key that can only edit your <strong>black_friday</strong> repo. You only do this once. The key stays on this device and isn't saved to the site.</p>
+    <ol class="steps">
+      <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub's new token page</a> (signed in as ellalwoods).</li>
+      <li>Name it "BF Edit". Set Expiration to 90 days.</li>
+      <li>Under Repository access choose <strong>Only select repositories</strong> and pick <strong>black_friday</strong>.</li>
+      <li>Under Permissions → Repository permissions set <strong>Contents</strong> to <strong>Read and write</strong>.</li>
+      <li>Press Generate token, copy it and paste it below.</li>
+    </ol>
+    <div class="f"><label for="cTok">GitHub key</label><input id="cTok" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+    <div class="err" id="cErr" role="alert"></div>
+    <div class="mfoot"><button type="button" class="btn danger" id="cForget" hidden>Disconnect</button><span class="sp"></span><button type="button" class="btn ghost" id="cCancel">Cancel</button><button type="submit" class="btn" id="cSave">Connect</button></div>
+  </form>
+</div>
 <div class="scrim" id="scrim" aria-hidden="true">
   <form class="modal" id="form" role="dialog" aria-modal="true" aria-labelledby="mTitle" novalidate>
     <h3 id="mTitle">Add a piece</h3>
@@ -210,7 +229,10 @@ section.group{padding-top:44px}
       <div class="f"><label for="fUsual">Usual price (AUD)</label><input id="fUsual" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Leave blank to fill in"></div>
       <div class="f"><label for="fMax">Most I'd pay (AUD)</label><input id="fMax" type="number" min="0" step="0.01" inputmode="decimal"></div>
       <div class="f"><label for="fPrio">Priority</label><select id="fPrio"><option value="2">Want</option><option value="3">Must have</option><option value="1">Only if cheap</option></select></div>
-      <div class="f full"><p class="hint">Only the link is needed. Anything you leave blank (brand, item, price, type and photo) is filled in from the shop's page. Next you'll land on GitHub: press <strong>Create</strong> and the piece appears here a minute or two later. Add your size and the most you'd pay so the price checks can flag a deal.</p></div>
+      <div class="f full"><label for="fPhoto">Photo (optional)</label>
+        <div class="drop"><div class="thumb" id="thumb">Shop photo</div>
+          <div style="display:grid;gap:6px"><input id="fPhoto" type="file" accept="image/*"><p>Leave this empty to use the shop's own photo.</p></div></div></div>
+      <div class="f full"><p class="hint">Only the link is needed. Anything you leave blank is filled in from the shop's page a minute or two after you save, and the price is checked for a sale. Add your size and the most you'd pay so the price checks can flag a deal.</p></div>
       <div class="f full"><label for="fNotes">Notes</label><textarea id="fNotes" placeholder="Anything to remember, like 'runs small'"></textarea></div>
     </div>
     <div class="err" id="fErr" role="alert"></div>
@@ -218,7 +240,7 @@ section.group{padding-top:44px}
       <button type="button" class="btn danger" id="delBtn" hidden>Delete</button>
       <span class="sp"></span>
       <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
-      <button type="submit" class="btn" id="saveBtn">Continue on GitHub</button>
+      <button type="submit" class="btn" id="saveBtn">Save</button>
     </div>
   </form>
 </div>
@@ -264,6 +286,8 @@ function renderChips(){
    `<button type="button" class="chip" data-type="" aria-pressed="${!typeFilter}">All</button>`+
    present.map(t=>`<button type="button" class="chip" data-type="${esc(t)}" aria-pressed="${typeFilter===t}">${esc(t)}</button>`).join("");
 }
+function imgSrc(it){const p=safeImg(it.image);return p?p+(it.imageV?"?v="+encodeURIComponent(it.imageV):""):null}
+function imgTag(it,lazy){const p=safeImg(it.image);if(!p)return"";return `<img src="${esc(imgSrc(it))}" alt="${esc(it.name)}"${lazy?' loading="lazy"':""} onerror="if(!this.dataset.r){this.dataset.r=1;this.src='${RAW}${esc(p)}'}else{this.remove()}">`}
 function card(it){
   const off=pctOff(it),hit=isHit(it),im=safeImg(it.image);
   const st={sale:hit?"Under your price":"On sale",full:"Full price",soldout:"Sold out in your size",error:"Couldn't check",unchecked:"Not checked yet"}[it.status||"unchecked"]||"Not checked yet";
@@ -273,12 +297,12 @@ function card(it){
     :(it.usualPrice?`<span class="now">${aud(it.usualPrice)}</span>`:"");
   const link=safeUrl(it.url);
   return `<article class="card" data-open="${esc(it.id)}" tabindex="0" role="button" aria-label="${esc((it.brand||"")+" "+(it.name||""))} details">
-    <div class="ph"><div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>${im?`<img src="${esc(im)}" alt="${esc(it.name)}" loading="lazy" onerror="this.remove()">`:""}
+    <div class="ph"><div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>${imgTag(it,true)}
       ${off>0&&it.status==="sale"?`<span class="badge">−${off}%</span>`:""}
             <span class="stchip ${esc(stc)}">${st}</span></div>
     <div class="body">
       <div class="brand">${esc(it.brand)}</div>
-      <div class="name">${esc(it.name)}</div>
+      <div class="name">${esc(it.name||"Getting details…")}</div>
       ${it.variant?`<div class="variant">${esc(it.variant)}${it.sizeNote?` · ${esc(it.sizeNote)}`:""}</div>`:""}
       <div class="price">${priceHtml}</div>
       ${it.maxPrice!=null?`<div class="max">Your max ${aud(it.maxPrice)}</div>`:""}
@@ -312,7 +336,7 @@ function openDetail(id){
   const kind=onSale?(it.saleKind==="promo"?"Promotion":it.saleKind==="markdown"?"Markdown":""):"";
   let host="";try{host=new URL(it.url).hostname.replace(/^www\./,"")}catch(_){}
   $("#dBody").innerHTML=`
-   <div class="dimg">${im?`<img src="${esc(im)}" alt="${esc(it.name)}">`:`<div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>`}
+   <div class="dimg">${im?imgTag(it,false):`<div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>`}
      ${off>0&&onSale?`<span class="badge">−${off}%</span>`:""}</div>
    <div class="dinfo">
      <div class="brand">${esc(it.brand)}</div>
@@ -342,10 +366,16 @@ function openDetail(id){
      <div class="dact">${it.bought?"":(link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop</a>`:"")}<button type="button" class="btn ${it.bought?"ghost":"accent"}" id="dBought">${it.bought?"Move back to list":"Bought it"}</button>${it.bought?"":`<button type="button" class="btn ghost" id="dEdit">Edit</button>`}<span class="sp"></span><button type="button" class="btn ghost" id="dClose">Close</button></div>
    </div>`;
   if($("#dEdit"))$("#dEdit").onclick=()=>{closeDetail();openForm(it)};
-  let armed=false;$("#dBought").onclick=()=>{
-    if(!armed){armed=true;$("#dBought").textContent=it.bought?"Tap again to move back":"Tap again to confirm";return}
-    go(issueUrl(`${it.bought?"Restore":"Bought"}: ${it.brand} ${it.name}`,`ID: ${it.id}\n\nPress Create to ${it.bought?"move this piece back to your list":"mark this piece as bought and move it to your archive"}.`));
-  };
+  $("#dBought").onclick=()=>needToken(async()=>{
+    const btn=$("#dBought");btn.disabled=true;btn.textContent="Saving…";
+    try{
+      await mutate(d=>{const x=(d.items||[]).find(i=>i.id===it.id);if(!x)return;
+        if(it.bought){delete x.bought;delete x.boughtAt;delete x.boughtPrice}
+        else{x.bought=true;x.boughtAt=nowIso();x.boughtPrice=(x.status==="sale"&&x.salePrice!=null)?x.salePrice:x.usualPrice}
+      },(it.bought?"Restore ":"Bought ")+it.brand+" "+it.name);
+      closeDetail();toast(it.bought?"Moved back to your list":"Marked as bought. It's in your Bought list");
+    }catch(err){btn.disabled=false;btn.textContent=it.bought?"Move back to list":"Bought it";toast(friendly(err))}
+  });
   $("#dClose").onclick=closeDetail;
   $("#detail").classList.add("open");$("#detail").setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
   $("#dBody").scrollTop=0;setTimeout(()=>{$("#dClose").focus({preventScroll:true});$("#dBody").scrollTop=0},30);
@@ -357,8 +387,8 @@ function returnBy(it){const b=brandInfo(it.brand);if(!b||!it.boughtAt)return nul
 function archiveCard(it){
   const im=safeImg(it.image),rb=returnBy(it),link=safeUrl(it.url),left=rb?Math.ceil((rb-new Date())/864e5):null;
   return `<article class="card bought" data-open="${esc(it.id)}" tabindex="0" role="button" aria-label="${esc((it.brand||"")+" "+(it.name||""))} details">
-    <div class="ph"><div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>${im?`<img src="${esc(im)}" alt="${esc(it.name)}" loading="lazy" onerror="this.remove()">`:""}<span class="stchip">Bought</span></div>
-    <div class="body"><div class="brand">${esc(it.brand)}</div><div class="name">${esc(it.name)}</div>
+    <div class="ph"><div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>${imgTag(it,true)}<span class="stchip">Bought</span></div>
+    <div class="body"><div class="brand">${esc(it.brand)}</div><div class="name">${esc(it.name||"Getting details…")}</div>
       ${it.variant?`<div class="variant">${esc(it.variant)}</div>`:""}
       <div class="price">${it.boughtPrice!=null?`<span class="now">${aud(it.boughtPrice)}</span>`:""}</div>
       <div class="scan">Bought ${esc(new Date(it.boughtAt).toLocaleDateString("en-AU",{day:"numeric",month:"short"}))}</div>
@@ -403,7 +433,7 @@ $("#addBtn").onclick=()=>openForm(null);
 $("#archBtn").onclick=()=>{showArchive=!showArchive;render();window.scrollTo(0,0)};
 $("#cancelBtn").onclick=closeForm;
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeForm()});
-document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if($("#scrim").classList.contains("open"))closeForm();else if($("#detail").classList.contains("open"))closeDetail()});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if($("#connect").classList.contains("open")){afterConnect=null;closeConnect()}else if($("#scrim").classList.contains("open"))closeForm();else if($("#detail").classList.contains("open"))closeDetail()});
 $("#detail").addEventListener("click",e=>{if(e.target.id==="detail")closeDetail()});
 $("#fType").innerHTML=`<option value="">Work it out for me</option>`+CATS.map(t=>`<option>${esc(t)}</option>`).join("");
 
@@ -413,41 +443,131 @@ function openForm(it){
   $("#fUrl").value=it?.url||"";$("#fBrand").value=it?.brand||"";$("#fName").value=it?.name||"";
   $("#fType").value=it?(cat(it)):"";$("#fVariant").value=it?.variant||"";
   $("#fUsual").value=it?.usualPrice??"";$("#fMax").value=it?.maxPrice??"";$("#fPrio").value=String(it?.priority||2);
-  $("#fNotes").value=it?.notes||"";$("#fErr").textContent="";
+  $("#fNotes").value=it?.notes||"";$("#fErr").textContent="";$("#fPhoto").value="";pendingImage=null;setThumb(it&&safeImg(it.image)?imgSrc(it):null);
   $("#delBtn").hidden=!it;$("#delBtn").textContent="Remove";
   $("#brandList").innerHTML=[...new Set(items.map(i=>i.brand).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join("");
   $("#scrim").classList.add("open");$("#scrim").setAttribute("aria-hidden","false");
   setTimeout(()=>$("#fUrl").focus(),30);
 }
 function closeForm(){$("#scrim").classList.remove("open");$("#scrim").setAttribute("aria-hidden","true")}
-function issueUrl(title,body){return `https://github.com/${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`}
-function go(u){window.location.href=u}
+function toast(m){const t=$("#toast");if(!t)return;t.textContent=m;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),3200)}
+/* ---------- saving straight to GitHub ---------- */
+const GH="https://api.github.com/repos/"+REPO;
+const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
+function tok(){try{return localStorage.getItem("bf_token")||""}catch(_){return ""}}
+function setTok(t){try{t?localStorage.setItem("bf_token",t):localStorage.removeItem("bf_token")}catch(_){}}
+const b64enc=str=>{const b=new TextEncoder().encode(str);let s="";for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s)};
+const b64dec=b64=>new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s/g,"")),c=>c.charCodeAt(0)));
+async function gh(path,opts={}){
+  const r=await fetch(GH+path,{...opts,cache:"no-store",headers:{Authorization:"Bearer "+tok(),Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(opts.headers||{})}});
+  if(!r.ok){const e=new Error("GitHub "+r.status);e.status=r.status;throw e}
+  return r.status===204?null:r.json();
+}
+async function readItems(){const f=await gh("/contents/data/items.json?ref=main");return{sha:f.sha,data:JSON.parse(b64dec(f.content))}}
+async function mutate(fn,message){
+  for(let attempt=0;attempt<4;attempt++){
+    const {sha,data}=await readItems();
+    const out=fn(data);
+    try{
+      await gh("/contents/data/items.json",{method:"PUT",body:JSON.stringify({message,branch:"main",sha,content:b64enc(JSON.stringify(data,null,2)+"\n")})});
+      items=data.items||[];meta=data;render();scheduleRefresh();return out;
+    }catch(e){if(e.status!==409&&e.status!==422)throw e;await new Promise(r=>setTimeout(r,800))}
+  }
+  throw new Error("conflict");
+}
+async function putImage(path,blob){
+  const b64=await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(",")[1]);fr.onerror=rej;fr.readAsDataURL(blob)});
+  let sha;try{sha=(await gh("/contents/"+path+"?ref=main")).sha}catch(_){}
+  await gh("/contents/"+path,{method:"PUT",body:JSON.stringify({message:"Photo for "+path,branch:"main",content:b64,...(sha?{sha}:{})})});
+}
+async function deleteFile(path){try{const f=await gh("/contents/"+path+"?ref=main");await gh("/contents/"+path,{method:"DELETE",body:JSON.stringify({message:"Remove "+path,branch:"main",sha:f.sha})})}catch(_){}}
+let refreshTimers=[];
+function scheduleRefresh(){refreshTimers.forEach(clearTimeout);refreshTimers=[60,120,200].map(sec=>setTimeout(refresh,sec*1000))}
+async function refresh(){if(!tok())return;try{const {data}=await readItems();items=data.items||[];meta=data;render()}catch(_){}}
+function friendly(e){
+  if(e&&(e.status===401||e.status===403)){setTok("");return"GitHub didn't accept the key. It may have expired or be missing Contents: Read and write. Try again and you'll be asked to reconnect."}
+  if(e&&e.status===404)return"GitHub can't see the black_friday repo with this key. Check the key has access to it.";
+  return"Couldn't save. Check your connection and try again.";
+}
+let afterConnect=null;
+function needToken(then){if(tok())return then();afterConnect=then;openConnect()}
+function openConnect(){$("#cTok").value="";$("#cErr").textContent="";$("#cForget").hidden=!tok();$("#connect").classList.add("open");$("#connect").setAttribute("aria-hidden","false");setTimeout(()=>$("#cTok").focus(),30)}
+function closeConnect(){$("#connect").classList.remove("open");$("#connect").setAttribute("aria-hidden","true")}
+$("#cCancel").onclick=()=>{afterConnect=null;closeConnect()};
+$("#cForget").onclick=()=>{setTok("");closeConnect();toast("Disconnected this device")};
+$("#cForm").addEventListener("submit",async e=>{
+  e.preventDefault();const t=$("#cTok").value.trim();if(!t){$("#cErr").textContent="Paste the key from GitHub.";return}
+  const old=tok();setTok(t);$("#cSave").disabled=true;$("#cSave").textContent="Checking…";
+  try{const {data}=await readItems();items=data.items||[];meta=data;render();closeConnect();toast("Connected");const f=afterConnect;afterConnect=null;if(f)f()}
+  catch(err){setTok(old);$("#cErr").textContent=friendly(err)}
+  finally{$("#cSave").disabled=false;$("#cSave").textContent="Connect"}
+});
+
+/* photo picker */
+let pendingImage=null;
+function setThumb(src){$("#thumb").innerHTML=src?`<img src="${esc(src)}" alt="">`:"Shop photo"}
+async function shrink(file){
+  const url=URL.createObjectURL(file);
+  try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
+    const sc=Math.min(1,1100/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement("canvas");
+    c.width=Math.round(img.naturalWidth*sc);c.height=Math.round(img.naturalHeight*sc);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    return await new Promise(r=>c.toBlob(b=>r(b||file),"image/jpeg",.84));
+  }catch(_){return file}finally{URL.revokeObjectURL(url)}
+}
+$("#fPhoto").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;if(!/^image\//.test(f.type)){$("#fErr").textContent="That file isn't an image.";return}
+  const blob=await shrink(f);if(pendingImage)URL.revokeObjectURL(pendingImage.preview);pendingImage={blob,preview:URL.createObjectURL(blob)};setThumb(pendingImage.preview)});
+
+const newId=()=>Array.from(crypto.getRandomValues(new Uint8Array(5)),b=>b.toString(16).padStart(2,"0")).join("");
+const nowIso=()=>new Date().toISOString().replace(/\.\d+Z$/,"+00:00");
 
 $("#delBtn").onclick=()=>{
   if(!delArmed){delArmed=true;$("#delBtn").textContent="Tap again to remove";return}
-  go(issueUrl(`Remove: ${editing.brand} ${editing.name}`,`ID: ${editing.id}\n\nPress Create to remove this piece from your edit.`));
+  const id=editing.id,img=editing.image;
+  needToken(async()=>{
+    try{$("#delBtn").disabled=true;await mutate(d=>{d.items=(d.items||[]).filter(i=>i.id!==id)},"Remove "+editing.brand+" "+editing.name);
+      closeForm();toast("Removed");if(safeImg(img))deleteFile(img)}
+    catch(err){$("#fErr").textContent=friendly(err)}finally{$("#delBtn").disabled=false}
+  });
 };
 $("#form").addEventListener("submit",e=>{
   e.preventDefault();
-  const url=$("#fUrl").value.trim(),brand=$("#fBrand").value.trim(),name=$("#fName").value.trim();
+  const url=$("#fUrl").value.trim();
   if(!safeUrl(url)){$("#fErr").textContent="Paste the full product link, starting with https://";return}
-  const lines=[
-    editing?`ID: ${editing.id}`:null,
-    `Link: ${url}`,`Brand: ${brand}`,`Item: ${name}`,`Type: ${$("#fType").value}`,
-    `Size/colour: ${$("#fVariant").value.trim()}`,`Usual price: ${$("#fUsual").value}`,`Max price: ${$("#fMax").value}`,
-    `Priority: ${PRIO[$("#fPrio").value]||"Want"}`,`Notes: ${$("#fNotes").value.trim().replace(/\n/g," ")}`,
-    "",editing?"Photo: drag a new photo here to replace the current one (optional)":"Photo: drag a photo here (optional)",""
-  ].filter(l=>l!==null);
-  let label=[brand,name].filter(Boolean).join(" ");if(!label){try{label=new URL(url).hostname.replace(/^www\./,"")}catch(_){label="new piece"}}
-  go(issueUrl(`${editing?"Edit":"Add"}: ${label}`,lines.join("\n")));
+  needToken(saveForm);
 });
-
+async function saveForm(){
+  const url=$("#fUrl").value.trim(),btn=$("#saveBtn");btn.disabled=true;btn.textContent="Saving…";$("#fErr").textContent="";
+  const num=v=>{const n=parseFloat(v);return isNaN(n)?null:Math.round(n*100)/100};
+  const fields={url,brand:$("#fBrand").value.trim(),name:$("#fName").value.trim(),type:$("#fType").value,variant:$("#fVariant").value.trim(),
+    usualPrice:num($("#fUsual").value),maxPrice:num($("#fMax").value),priority:parseInt($("#fPrio").value,10)||2,notes:$("#fNotes").value.trim()};
+  const id=editing?editing.id:newId();
+  try{
+    if(pendingImage){await putImage(`images/${id}.jpg`,pendingImage.blob);fields.image=`images/${id}.jpg`;fields.imageV=Date.now()}
+    await mutate(d=>{
+      d.items=d.items||[];
+      const it=d.items.find(i=>i.id===id);
+      if(it){
+        const urlChanged=it.url!==fields.url,varChanged=it.variant!==fields.variant;
+        if(!fields.type)fields.type=it.type||"";
+        Object.assign(it,fields);
+        if(urlChanged)Object.assign(it,{status:"unchecked",salePrice:null,saleKind:null,checkedAt:null,scanNote:"",sizeNote:null,stockCheckedAt:null});
+        else if(varChanged)Object.assign(it,{sizeNote:null,stockCheckedAt:null});
+      }else{
+        d.items.push({id,image:null,...fields,status:"unchecked",salePrice:null,checkedAt:null,scanNote:"",addedAt:nowIso()});
+      }
+    },(editing?"Edit ":"Add ")+([fields.brand,fields.name].filter(Boolean).join(" ")||url));
+    const wasEdit=!!editing;closeForm();
+    toast(wasEdit?"Saved":"Added. Details, photo and sale check follow in a minute or two");
+  }catch(err){$("#fErr").textContent=friendly(err)}
+  finally{btn.disabled=false;btn.textContent="Save"}
+}
 (async()=>{
   render();
   try{
-    const r=await fetch("data/items.json?t="+Date.now(),{cache:"no-store"});
-    if(!r.ok)throw new Error(r.status);
-    const d=await r.json();items=Array.isArray(d.items)?d.items:[];meta=d;
+    let d=null;
+    if(tok()){try{d=(await readItems()).data}catch(_){d=null}}
+    if(!d){const r=await fetch("data/items.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);d=await r.json()}
+    items=Array.isArray(d.items)?d.items:[];meta=d;
     try{const rb=await fetch("data/brands.json?t="+Date.now(),{cache:"no-store"});if(rb.ok)brands=await rb.json()}catch(_){}
   }catch(e){const s=$("#status");s.innerHTML="<strong>Couldn't load your list.</strong> Refresh the page to try again.";s.hidden=false}
   loaded=true;render();
