@@ -148,6 +148,42 @@
       "addedAt": "2026-11-23T03:45:05+00:00",
       "stockCheckedAt": "2026-11-23T03:45:17+00:00",
       "sizeNote": "Size 8 in stock"
+    },
+    {
+      "id": "f5fb2c5c70",
+      "url": "https://www.sheike.com.au/products/airlee-skirt-multi",
+      "brand": "",
+      "name": "",
+      "type": "",
+      "variant": "8 · Multi",
+      "usualPrice": null,
+      "maxPrice": null,
+      "priority": 2,
+      "notes": "",
+      "image": null,
+      "status": "unchecked",
+      "salePrice": null,
+      "checkedAt": null,
+      "scanNote": "",
+      "addedAt": "2026-11-23T06:47:39+00:00"
+    },
+    {
+      "id": "c2668c3a25",
+      "url": "https://www.sheike.com.au/products/airlee-top-multi",
+      "brand": "",
+      "name": "",
+      "type": "",
+      "variant": "8 · Multi",
+      "usualPrice": null,
+      "maxPrice": null,
+      "priority": 2,
+      "notes": "",
+      "image": null,
+      "status": "unchecked",
+      "salePrice": null,
+      "checkedAt": null,
+      "scanNote": "",
+      "addedAt": "2026-11-23T06:47:39+00:00"
     }
   ],
   "schema": 2
