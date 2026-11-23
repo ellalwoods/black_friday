@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 sys.path.insert(0, ".github/scripts")
-from apply_issue import DATA, fetch, save_image, shop_details  # noqa: E402
+from apply_issue import DATA, fetch, guess_type, save_image, shop_details  # noqa: E402
 
 
 def size_of(variant):
@@ -40,8 +40,27 @@ def main():
     changed = False
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     for it in data.get("items", []):
+        info = None
+        if not it.get("brand") or not it.get("name") or not it.get("usualPrice") or not it.get("type"):
+            try:
+                info = shop_details(it["url"])
+            except Exception as e:  # noqa: BLE001
+                print("details failed:", it.get("url"), e, file=sys.stderr)
+                info = {}
+            for key, src_key in (("brand", "brand"), ("name", "name")):
+                if not it.get(key) and info.get(src_key):
+                    it[key] = info[src_key]; changed = True
+            if not it.get("usualPrice") and (info.get("was") or info.get("price")):
+                it["usualPrice"] = info.get("was") or info.get("price"); changed = True
+                if info.get("was") and info.get("price") and info["price"] < info["was"]:
+                    it.update(status="sale", salePrice=info["price"], saleKind="markdown",
+                              scanNote="Already on sale when added", checkedAt=now)
+            if not it.get("type"):
+                g = guess_type(it.get("name"), info.get("category"))
+                if g:
+                    it["type"] = g; changed = True
         if not it.get("image"):
-            src = it.get("imageSrc")
+            src = it.get("imageSrc") or (info or {}).get("image")
             if not src:
                 try:
                     src = shop_details(it["url"]).get("image")

@@ -128,6 +128,24 @@
       "addedAt": "2026-11-22T09:10:39+00:00",
       "stockCheckedAt": "2026-11-22T09:10:52+00:00",
       "sizeNote": "Size 8 in stock"
+    },
+    {
+      "id": "50939c71c1",
+      "url": "https://jag.com.au/products/carrie-denim-short-jww264005g-rawwash",
+      "brand": "",
+      "name": "",
+      "type": "",
+      "variant": "8 · Raw wash",
+      "usualPrice": null,
+      "maxPrice": null,
+      "priority": 2,
+      "notes": "",
+      "image": null,
+      "status": "unchecked",
+      "salePrice": null,
+      "checkedAt": null,
+      "scanNote": "",
+      "addedAt": "2026-11-23T03:45:05+00:00"
     }
   ]
 }
