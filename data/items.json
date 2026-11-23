@@ -155,7 +155,7 @@
       "brand": "Sheike",
       "name": "Airlee Skirt",
       "type": "Skirts",
-      "variant": "8 · Multi",
+      "variant": "S (AU 8) · Multi",
       "usualPrice": 129.99,
       "maxPrice": null,
       "priority": 2,
@@ -165,7 +165,8 @@
       "salePrice": null,
       "checkedAt": "2026-11-23T06:47:51+00:00",
       "scanNote": "Full price when added",
-      "addedAt": "2026-11-23T06:47:39+00:00"
+      "addedAt": "2026-11-23T06:47:39+00:00",
+      "sizeNote": null
     },
     {
       "id": "c2668c3a25",
@@ -173,7 +174,7 @@
       "brand": "Sheike",
       "name": "Airlee Top",
       "type": "Tops",
-      "variant": "8 · Multi",
+      "variant": "S (AU 8) · Multi",
       "usualPrice": 89.99,
       "maxPrice": null,
       "priority": 2,
@@ -183,7 +184,8 @@
       "salePrice": null,
       "checkedAt": "2026-11-23T06:47:51+00:00",
       "scanNote": "Full price when added",
-      "addedAt": "2026-11-23T06:47:39+00:00"
+      "addedAt": "2026-11-23T06:47:39+00:00",
+      "sizeNote": null
     }
   ],
   "schema": 2
