@@ -141,10 +141,10 @@
       "priority": 2,
       "notes": "",
       "image": "images/50939c71c1.jpg",
-      "status": "unchecked",
+      "status": "full",
       "salePrice": null,
-      "checkedAt": null,
-      "scanNote": "",
+      "checkedAt": "2026-11-23T04:17:35+00:00",
+      "scanNote": "Full price when added",
       "addedAt": "2026-11-23T03:45:05+00:00",
       "stockCheckedAt": "2026-11-23T03:45:17+00:00",
       "sizeNote": "Size 8 in stock"
