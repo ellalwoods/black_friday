@@ -132,20 +132,22 @@
     {
       "id": "50939c71c1",
       "url": "https://jag.com.au/products/carrie-denim-short-jww264005g-rawwash",
-      "brand": "",
-      "name": "",
-      "type": "",
+      "brand": "JAG",
+      "name": "Carrie Denim Short",
+      "type": "Pants & jeans",
       "variant": "8 · Raw wash",
-      "usualPrice": null,
+      "usualPrice": 120.0,
       "maxPrice": null,
       "priority": 2,
       "notes": "",
-      "image": null,
+      "image": "images/50939c71c1.jpg",
       "status": "unchecked",
       "salePrice": null,
       "checkedAt": null,
       "scanNote": "",
-      "addedAt": "2026-11-23T03:45:05+00:00"
+      "addedAt": "2026-11-23T03:45:05+00:00",
+      "stockCheckedAt": "2026-11-23T03:45:17+00:00",
+      "sizeNote": "Size 8 in stock"
     }
   ]
 }
