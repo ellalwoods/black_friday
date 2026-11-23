@@ -366,16 +366,12 @@ function openDetail(id){
      <div class="dact">${it.bought?"":(link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop</a>`:"")}<button type="button" class="btn ${it.bought?"ghost":"accent"}" id="dBought">${it.bought?"Move back to list":"Bought it"}</button>${it.bought?"":`<button type="button" class="btn ghost" id="dEdit">Edit</button>`}<span class="sp"></span><button type="button" class="btn ghost" id="dClose">Close</button></div>
    </div>`;
   if($("#dEdit"))$("#dEdit").onclick=()=>{closeDetail();openForm(it)};
-  $("#dBought").onclick=()=>needToken(async()=>{
-    const btn=$("#dBought");btn.disabled=true;btn.textContent="Saving…";
-    try{
-      await mutate(d=>{const x=(d.items||[]).find(i=>i.id===it.id);if(!x)return;
-        if(it.bought){delete x.bought;delete x.boughtAt;delete x.boughtPrice}
-        else{x.bought=true;x.boughtAt=nowIso();x.boughtPrice=(x.status==="sale"&&x.salePrice!=null)?x.salePrice:x.usualPrice}
-      },(it.bought?"Restore ":"Bought ")+it.brand+" "+it.name);
-      closeDetail();toast(it.bought?"Moved back to your list":"Marked as bought. It's in your Bought list");
-    }catch(err){btn.disabled=false;btn.textContent=it.bought?"Move back to list":"Bought it";toast(friendly(err))}
-  });
+  $("#dBought").onclick=()=>{
+    const m=readBought();
+    if(it.bought){delete m[it.id]}else{m[it.id]={boughtAt:nowIso(),boughtPrice:(it.status==="sale"&&it.salePrice!=null)?it.salePrice:it.usualPrice}}
+    writeBought(m);applyBought();closeDetail();render();
+    toast(it.bought?"Marked as bought. It's in your Bought list":"Moved back to your list");
+  };
   $("#dClose").onclick=closeDetail;
   $("#detail").classList.add("open");$("#detail").setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
   $("#dBody").scrollTop=0;setTimeout(()=>{$("#dClose").focus({preventScroll:true});$("#dBody").scrollTop=0},30);
@@ -451,6 +447,12 @@ function openForm(it){
 }
 function closeForm(){$("#scrim").classList.remove("open");$("#scrim").setAttribute("aria-hidden","true")}
 function toast(m){const t=$("#toast");if(!t)return;t.textContent=m;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),3200)}
+/* ---------- bought list, kept on this device ---------- */
+function readBought(){try{return JSON.parse(localStorage.getItem("bf_bought")||"{}")||{}}catch(_){return{}}}
+function writeBought(m){try{localStorage.setItem("bf_bought",JSON.stringify(m))}catch(_){}}
+function applyBought(){const m=readBought();for(const it of items){const b=m[it.id];
+  if(b){it.bought=true;it.boughtAt=b.boughtAt;it.boughtPrice=b.boughtPrice}else if(!it._serverBought){delete it.bought;delete it.boughtAt;delete it.boughtPrice}}}
+function markServer(list){for(const it of list)if(it.bought)it._serverBought=true;return list}
 /* ---------- saving straight to GitHub ---------- */
 const GH="https://api.github.com/repos/"+REPO;
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
@@ -470,7 +472,7 @@ async function mutate(fn,message){
     const out=fn(data);
     try{
       await gh("/contents/data/items.json",{method:"PUT",body:JSON.stringify({message,branch:"main",sha,content:b64enc(JSON.stringify(data,null,2)+"\n")})});
-      items=data.items||[];meta=data;render();scheduleRefresh();return out;
+      items=markServer(data.items||[]);applyBought();meta=data;render();scheduleRefresh();return out;
     }catch(e){if(e.status!==409&&e.status!==422)throw e;await new Promise(r=>setTimeout(r,800))}
   }
   throw new Error("conflict");
@@ -483,7 +485,7 @@ async function putImage(path,blob){
 async function deleteFile(path){try{const f=await gh("/contents/"+path+"?ref=main");await gh("/contents/"+path,{method:"DELETE",body:JSON.stringify({message:"Remove "+path,branch:"main",sha:f.sha})})}catch(_){}}
 let refreshTimers=[];
 function scheduleRefresh(){refreshTimers.forEach(clearTimeout);refreshTimers=[60,120,200].map(sec=>setTimeout(refresh,sec*1000))}
-async function refresh(){if(!tok())return;try{const {data}=await readItems();items=data.items||[];meta=data;render()}catch(_){}}
+async function refresh(){if(!tok())return;try{const {data}=await readItems();items=markServer(data.items||[]);applyBought();meta=data;render()}catch(_){}}
 function friendly(e){
   if(e&&(e.status===401||e.status===403)){setTok("");return"GitHub didn't accept the key. It may have expired or be missing Contents: Read and write. Try again and you'll be asked to reconnect."}
   if(e&&e.status===404)return"GitHub can't see the black_friday repo with this key. Check the key has access to it.";
@@ -498,7 +500,7 @@ $("#cForget").onclick=()=>{setTok("");closeConnect();toast("Disconnected this de
 $("#cForm").addEventListener("submit",async e=>{
   e.preventDefault();const t=$("#cTok").value.trim();if(!t){$("#cErr").textContent="Paste the key from GitHub.";return}
   const old=tok();setTok(t);$("#cSave").disabled=true;$("#cSave").textContent="Checking…";
-  try{const {data}=await readItems();items=data.items||[];meta=data;render();closeConnect();toast("Connected");const f=afterConnect;afterConnect=null;if(f)f()}
+  try{const {data}=await readItems();items=markServer(data.items||[]);applyBought();meta=data;render();closeConnect();toast("Connected");const f=afterConnect;afterConnect=null;if(f)f()}
   catch(err){setTok(old);$("#cErr").textContent=friendly(err)}
   finally{$("#cSave").disabled=false;$("#cSave").textContent="Connect"}
 });
@@ -567,7 +569,7 @@ async function saveForm(){
     let d=null;
     if(tok()){try{d=(await readItems()).data}catch(_){d=null}}
     if(!d){const r=await fetch("data/items.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);d=await r.json()}
-    items=Array.isArray(d.items)?d.items:[];meta=d;
+    items=markServer(Array.isArray(d.items)?d.items:[]);applyBought();meta=d;
     try{const rb=await fetch("data/brands.json?t="+Date.now(),{cache:"no-store"});if(rb.ok)brands=await rb.json()}catch(_){}
   }catch(e){const s=$("#status");s.innerHTML="<strong>Couldn't load your list.</strong> Refresh the page to try again.";s.hidden=false}
   loaded=true;render();
