@@ -166,7 +166,8 @@
       "checkedAt": "2026-11-23T06:47:51+00:00",
       "scanNote": "Full price when added",
       "addedAt": "2026-11-23T06:47:39+00:00",
-      "sizeNote": null
+      "sizeNote": "Size S in stock",
+      "stockCheckedAt": "2026-11-23T06:50:03+00:00"
     },
     {
       "id": "c2668c3a25",
@@ -180,12 +181,13 @@
       "priority": 2,
       "notes": "",
       "image": "images/c2668c3a25.jpg",
-      "status": "full",
+      "status": "soldout",
       "salePrice": null,
       "checkedAt": "2026-11-23T06:47:51+00:00",
       "scanNote": "Full price when added",
       "addedAt": "2026-11-23T06:47:39+00:00",
-      "sizeNote": null
+      "sizeNote": "Size S sold out",
+      "stockCheckedAt": "2026-11-23T06:50:03+00:00"
     }
   ],
   "schema": 2
