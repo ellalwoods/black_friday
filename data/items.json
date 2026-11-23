@@ -14,12 +14,13 @@
       "notes": "",
       "image": "images/e8c70e58ef.jpg",
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009325_ARDEN_MAXI_DRESS_PAISLEY_CHECK-20.jpg?v=1793225483&width=1200",
-      "status": "full",
+      "status": "soldout",
       "salePrice": null,
       "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "sizeNote": null
+      "sizeNote": "Size 8 sold out",
+      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
     },
     {
       "id": "52f3fc30be",
@@ -39,7 +40,8 @@
       "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "sizeNote": null
+      "sizeNote": "Size 8 in stock",
+      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
     },
     {
       "id": "a9d3e96d3c",
@@ -59,7 +61,8 @@
       "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "sizeNote": null
+      "sizeNote": "Size 8 in stock",
+      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
     },
     {
       "id": "fb68337b22",
@@ -79,8 +82,9 @@
       "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "25% off promotion",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "sizeNote": null,
-      "saleKind": "promo"
+      "sizeNote": "Size 8 in stock",
+      "saleKind": "promo",
+      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
     },
     {
       "id": "989bb2ec30",
@@ -95,13 +99,14 @@
       "notes": "",
       "image": "images/989bb2ec30.jpg",
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009099_JOEY_TOP_SPOT_12-11_60723ff2-5276-4e99-8d4e-f6c347d53ae2.jpg?crop=center&height=1200&v=1787293624&width=1200",
-      "status": "sale",
+      "status": "soldout",
       "salePrice": 105.0,
       "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "25% off promotion",
       "addedAt": "2026-11-22T09:09:59+00:00",
-      "sizeNote": null,
-      "saleKind": "promo"
+      "sizeNote": "Size 8 sold out",
+      "saleKind": "promo",
+      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
     },
     {
       "id": "2ef8b2907c",
@@ -121,7 +126,8 @@
       "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "No Black Friday discount yet",
       "addedAt": "2026-11-22T09:10:39+00:00",
-      "sizeNote": null
+      "sizeNote": "Size 8 in stock",
+      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
     },
     {
       "id": "50939c71c1",
@@ -140,8 +146,9 @@
       "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "Black Friday: 25% off almost everything",
       "addedAt": "2026-11-23T03:45:05+00:00",
-      "sizeNote": null,
-      "saleKind": "promo"
+      "sizeNote": "Size 8 in stock",
+      "saleKind": "promo",
+      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
     },
     {
       "id": "f5fb2c5c70",
@@ -160,7 +167,8 @@
       "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "Not in Sheike's 25% off edit",
       "addedAt": "2026-11-23T06:47:39+00:00",
-      "sizeNote": null
+      "sizeNote": "Size S in stock",
+      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
     },
     {
       "id": "c2668c3a25",
@@ -174,12 +182,13 @@
       "priority": 2,
       "notes": "",
       "image": "images/c2668c3a25.jpg",
-      "status": "full",
+      "status": "soldout",
       "salePrice": null,
       "checkedAt": "2026-11-23T21:11:27+00:00",
       "scanNote": "Not in Sheike's 25% off edit",
       "addedAt": "2026-11-23T06:47:39+00:00",
-      "sizeNote": null
+      "sizeNote": "Size S sold out",
+      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
     }
   ],
   "schema": 2
