@@ -20,7 +20,7 @@ UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/130.0 Safari/537.36")
 TYPES = ["Tops", "Knitwear", "Dresses", "Skirts", "Pants & jeans", "Outerwear",
          "Tailoring", "Activewear", "Swim", "Shoes", "Bags", "Jewellery",
-         "Accessories", "Beauty", "Home", "Other"]
+         "Accessories", "Beauty", "Home", "Other", "Clothes", "Makeup & beauty"]
 PRIO = {"only if cheap": 1, "want": 2, "must have": 3}
 FIELDS = {"id": "id", "link": "url", "brand": "brand", "item": "name",
           "type": "type", "size/colour": "variant", "size/color": "variant",

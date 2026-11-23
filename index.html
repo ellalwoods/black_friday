@@ -185,7 +185,7 @@ section.group{padding-top:44px}
     <div class="seg" role="group" aria-label="Group by">
       <button type="button" id="gStatus" aria-pressed="true">By sale</button>
       <button type="button" id="gBrand" aria-pressed="false">By brand</button>
-      <button type="button" id="gType" aria-pressed="false">By type</button>
+      <button type="button" id="gType" aria-pressed="false">By category</button>
     </div>
     <div class="chips" id="chips"></div>
     <button type="button" class="btn accent" id="addBtn">+ Add a piece</button>
@@ -201,7 +201,7 @@ section.group{padding-top:44px}
     <div class="fgrid">
       <div class="f full"><label for="fUrl">Product link</label><input id="fUrl" type="url" placeholder="Paste the link from the shop" required></div>
       <div class="f"><label for="fBrand">Brand</label><input id="fBrand" list="brandList" placeholder="Leave blank to fill in"><datalist id="brandList"></datalist></div>
-      <div class="f"><label for="fType">Type</label><select id="fType"></select></div>
+      <div class="f"><label for="fType">Category</label><select id="fType"></select></div>
       <div class="f full"><label for="fName">Item</label><input id="fName" placeholder="Leave blank to fill in"></div>
       <div class="f"><label for="fVariant">Size / colour</label><input id="fVariant" placeholder="e.g. AU 10, black"></div>
       <div class="f"><label for="fUsual">Usual price (AUD)</label><input id="fUsual" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Leave blank to fill in"></div>
@@ -224,6 +224,9 @@ section.group{padding-top:44px}
 
 <script>
 const REPO="ellalwoods/black_friday";
+const CATS=["Clothes","Shoes","Bags","Jewellery","Accessories","Makeup & beauty","Home","Other"];
+const CAT_OF={"Tops":"Clothes","Knitwear":"Clothes","Dresses":"Clothes","Skirts":"Clothes","Pants & jeans":"Clothes","Outerwear":"Clothes","Tailoring":"Clothes","Activewear":"Clothes","Swim":"Clothes","Clothes":"Clothes","Shoes":"Shoes","Bags":"Bags","Jewellery":"Jewellery","Accessories":"Accessories","Beauty":"Makeup & beauty","Makeup & beauty":"Makeup & beauty","Home":"Home"};
+const cat=it=>CAT_OF[it.type]||"Other";
 const TYPES=["Tops","Knitwear","Dresses","Skirts","Pants & jeans","Outerwear","Tailoring","Activewear","Swim","Shoes","Bags","Jewellery","Accessories","Beauty","Home","Other"];
 const PRIO={1:"Only if cheap",2:"Want",3:"Must have"};
 let items=[], meta={}, brands={}, loaded=false;
@@ -238,7 +241,7 @@ function pctOff(it){return (it.salePrice!=null&&it.usualPrice)?Math.round((1-it.
 function isHit(it){return it.status==="sale"&&it.salePrice!=null&&it.maxPrice!=null&&it.salePrice<=it.maxPrice}
 function fmtWhen(iso){if(!iso)return"";const d=new Date(iso);return isNaN(d)?"":d.toLocaleString("en-AU",{weekday:"short",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",timeZone:"Australia/Brisbane"})}
 function src(){return items}
-function shown(){return src().filter(it=>(!typeFilter||it.type===typeFilter)&&(!saleOnly||it.status==="sale"))}
+function shown(){return src().filter(it=>(!typeFilter||cat(it)===typeFilter)&&(!saleOnly||it.status==="sale"))}
 
 function renderStats(){
   const onSale=items.filter(i=>i.status==="sale"),hits=items.filter(isHit);
@@ -252,7 +255,7 @@ function renderStats(){
 }
 function renderChips(){
   const s=items;
-  const present=TYPES.filter(t=>s.some(i=>i.type===t));
+  const present=CATS.filter(t=>t!=="Other"||s.some(i=>cat(i)===t));
   $("#chips").innerHTML=`<button type="button" class="chip salechip" data-sale aria-pressed="${saleOnly}">On sale</button>`+
    `<button type="button" class="chip" data-type="" aria-pressed="${!typeFilter}">All</button>`+
    present.map(t=>`<button type="button" class="chip" data-type="${esc(t)}" aria-pressed="${typeFilter===t}">${esc(t)}</button>`).join("");
@@ -318,7 +321,7 @@ function openDetail(id){
        ${row("Discount",esc((kind&&!(it.scanNote||"").toLowerCase().includes(kind.toLowerCase())?[kind,it.scanNote]:[it.scanNote||kind]).filter(Boolean).join(" · ")))}
        ${row("Your max",it.maxPrice!=null?aud(it.maxPrice)+(onSale?(it.salePrice<=it.maxPrice?" · this is under it":" · still "+aud(it.salePrice-it.maxPrice)+" over"):""):"")}
        ${row("Priority",esc(PRIO[it.priority]||""))}
-       ${row("Type",esc(it.type||""))}
+       ${row("Category",esc(cat(it)))}
        ${row("Notes",esc(it.notes||""))}
        ${row("Last checked",esc(fmtWhen(it.checkedAt)))}
        ${row("Shop",esc(host))}
@@ -349,9 +352,9 @@ function render(){
   const groups=new Map();
   const STATUS=["On sale","Not on sale","Unavailable"];
   const statusOf=it=>it.status==="soldout"?"Unavailable":it.status==="sale"?"On sale":"Not on sale";
-  for(const it of s){const k=groupBy==="status"?statusOf(it):groupBy==="brand"?(it.brand||"Unbranded"):(it.type||"Other");if(!groups.has(k))groups.set(k,[]);groups.get(k).push(it)}
+  for(const it of s){const k=groupBy==="status"?statusOf(it):groupBy==="brand"?(it.brand||"Unbranded"):cat(it);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(it)}
   let keys=[...groups.keys()];
-  keys=groupBy==="status"?keys.sort((a,b)=>STATUS.indexOf(a)-STATUS.indexOf(b)):groupBy==="brand"?keys.sort((a,b)=>a.localeCompare(b)):keys.sort((a,b)=>TYPES.indexOf(a)-TYPES.indexOf(b));
+  keys=groupBy==="status"?keys.sort((a,b)=>STATUS.indexOf(a)-STATUS.indexOf(b)):groupBy==="brand"?keys.sort((a,b)=>a.localeCompare(b)):keys.sort((a,b)=>CATS.indexOf(a)-CATS.indexOf(b));
   list.innerHTML=pre+keys.map(k=>{const g=sortItems(groups.get(k));
     const sv=g.filter(i=>i.status==="sale"&&i.usualPrice&&i.salePrice!=null).reduce((a,i)=>a+(i.usualPrice-i.salePrice),0);
     return `<section class="group"><div class="ghead"><h2>${esc(k)}</h2><span class="cnt">${g.length} ${g.length===1?"piece":"pieces"}</span>${sv>0?`<span class="sv">${aud(sv)} off</span>`:""}</div><div class="grid">${g.map(card).join("")}</div></section>`}).join("");
@@ -369,13 +372,13 @@ $("#cancelBtn").onclick=closeForm;
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeForm()});
 document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if($("#scrim").classList.contains("open"))closeForm();else if($("#detail").classList.contains("open"))closeDetail()});
 $("#detail").addEventListener("click",e=>{if(e.target.id==="detail")closeDetail()});
-$("#fType").innerHTML=`<option value="">Work it out for me</option>`+TYPES.map(t=>`<option>${esc(t)}</option>`).join("");
+$("#fType").innerHTML=`<option value="">Work it out for me</option>`+CATS.map(t=>`<option>${esc(t)}</option>`).join("");
 
 function openForm(it){
   editing=it||null;delArmed=false;
   $("#mTitle").textContent=it?"Edit piece":"Add a piece";
   $("#fUrl").value=it?.url||"";$("#fBrand").value=it?.brand||"";$("#fName").value=it?.name||"";
-  $("#fType").value=it?.type||"";$("#fVariant").value=it?.variant||"";
+  $("#fType").value=it?(cat(it)):"";$("#fVariant").value=it?.variant||"";
   $("#fUsual").value=it?.usualPrice??"";$("#fMax").value=it?.maxPrice??"";$("#fPrio").value=String(it?.priority||2);
   $("#fNotes").value=it?.notes||"";$("#fErr").textContent="";
   $("#delBtn").hidden=!it;$("#delBtn").textContent="Remove";
