@@ -83,7 +83,8 @@
       "scanNote": "25% off promotion",
       "addedAt": "2026-11-22T09:09:59+00:00",
       "stockCheckedAt": "2026-11-22T09:10:18+00:00",
-      "sizeNote": "Size 8 in stock"
+      "sizeNote": "Size 8 in stock",
+      "saleKind": "promo"
     },
     {
       "id": "989bb2ec30",
@@ -104,7 +105,8 @@
       "scanNote": "25% off promotion",
       "addedAt": "2026-11-22T09:09:59+00:00",
       "stockCheckedAt": "2026-11-22T09:10:18+00:00",
-      "sizeNote": "Size 8 sold out"
+      "sizeNote": "Size 8 sold out",
+      "saleKind": "promo"
     },
     {
       "id": "2ef8b2907c",

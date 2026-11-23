@@ -105,6 +105,17 @@ section.group{padding-top:44px}
 .price .was{color:var(--muted);text-decoration:line-through;font-size:13px}
 .max{font-size:12px;color:var(--muted)}
 .scan{font-size:12px;color:var(--muted)}
+.ret{font-size:12px;color:var(--muted)}
+.ret.strict{color:var(--warn)}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.rcard{display:grid;gap:6px;padding:16px;background:var(--soft)}
+.rwin{font-family:var(--display);font-style:italic;font-size:22px}
+.rcard dl{margin:0;display:grid;gap:2px}
+.rcard dt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:6px}
+.rcard dd{margin:0;font-size:14px}
+.rlink{color:var(--ink);font-size:13px;font-weight:600}
+.rchk{font-size:12px;color:var(--muted)}
+.rnote{font-size:12px;color:var(--muted);margin:14px 0 0}
 .actions{display:flex;gap:8px;margin-top:auto;padding-top:10px}
 .actions .btn{padding:7px 14px;font-size:12px}
 
@@ -191,7 +202,7 @@ section.group{padding-top:44px}
 const REPO="ellalwoods/black_friday";
 const TYPES=["Tops","Knitwear","Dresses","Skirts","Pants & jeans","Outerwear","Tailoring","Activewear","Swim","Shoes","Bags","Jewellery","Accessories","Beauty","Home","Other"];
 const PRIO={1:"Only if cheap",2:"Want",3:"Must have"};
-let items=[], meta={}, loaded=false;
+let items=[], meta={}, brands={}, loaded=false;
 let groupBy="status", typeFilter=null, saleOnly=false, editing=null, delArmed=false;
 
 const $=s=>document.querySelector(s);
@@ -241,11 +252,25 @@ function card(it){
       <div class="price">${priceHtml}</div>
       ${it.maxPrice!=null?`<div class="max">Your max ${aud(it.maxPrice)}</div>`:""}
       ${it.scanNote?`<div class="scan">${esc(it.scanNote)}</div>`:""}
+      ${returnsLine(it)}
       <div class="actions">
         ${link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop</a>`:""}
         <button type="button" class="btn ghost" data-edit="${esc(it.id)}">Edit</button>
       </div>
     </div></article>`;
+}
+function brandInfo(name){const k=Object.keys(brands).find(b=>b.toLowerCase()===String(name||"").toLowerCase());return k?brands[k]:null}
+function saleRules(it,b){return it.status==="sale"&&!(it.saleKind==="promo"&&b.promoIsFullPrice)}
+function returnsLine(it){const b=brandInfo(it.brand);if(!b)return"";const sale=saleRules(it,b);
+  return `<div class="ret${sale?" strict":""}">Returns: ${esc(b.windowShort)} · ${esc(sale?b.saleShort:b.fullShort)}</div>`}
+function renderReturns(){
+  const names=[...new Set(items.map(i=>i.brand))].filter(n=>brandInfo(n)).sort();
+  if(!names.length)return"";
+  return `<section class="group returns" id="returns"><div class="ghead"><h2>Returns</h2><span class="cnt">change of mind</span></div><div class="rgrid">`+
+   names.map(n=>{const b=brandInfo(n);return `<div class="rcard"><div class="brand">${esc(n)}</div><div class="rwin">${esc(b.window)}</div>
+     <dl><dt>Full price</dt><dd>${esc(b.fullPrice)}</dd><dt>Sale</dt><dd>${esc(b.sale)}</dd>${b.other?`<dt>Also</dt><dd>${esc(b.other)}</dd>`:""}</dl>
+     <div><a class="rlink" href="${esc(safeUrl(b.url)||"#")}" target="_blank" rel="noopener">Full policy</a><span class="rchk"> · checked ${esc(new Date(b.checked).toLocaleDateString("en-AU",{day:"numeric",month:"short"}))}</span></div></div>`}).join("")+
+   `</div><p class="rnote">Faulty items are covered by Australian Consumer Law whatever the store's sale policy says.</p></section>`;
 }
 function sortItems(a){return a.slice().sort((x,y)=>(isHit(y)-isHit(x))||((y.status==="sale")-(x.status==="sale"))||((y.priority||2)-(x.priority||2))||String(x.name).localeCompare(String(y.name)))}
 function render(){
@@ -263,7 +288,7 @@ function render(){
   keys=groupBy==="status"?keys.sort((a,b)=>STATUS.indexOf(a)-STATUS.indexOf(b)):groupBy==="brand"?keys.sort((a,b)=>a.localeCompare(b)):keys.sort((a,b)=>TYPES.indexOf(a)-TYPES.indexOf(b));
   list.innerHTML=pre+keys.map(k=>{const g=sortItems(groups.get(k));
     const sv=g.filter(i=>i.status==="sale"&&i.usualPrice&&i.salePrice!=null).reduce((a,i)=>a+(i.usualPrice-i.salePrice),0);
-    return `<section class="group"><div class="ghead"><h2>${esc(k)}</h2><span class="cnt">${g.length} ${g.length===1?"piece":"pieces"}</span>${sv>0?`<span class="sv">${aud(sv)} off</span>`:""}</div><div class="grid">${g.map(card).join("")}</div></section>`}).join("");
+    return `<section class="group"><div class="ghead"><h2>${esc(k)}</h2><span class="cnt">${g.length} ${g.length===1?"piece":"pieces"}</span>${sv>0?`<span class="sv">${aud(sv)} off</span>`:""}</div><div class="grid">${g.map(card).join("")}</div></section>`}).join("")+renderReturns();
 }
 
 function setGroup(g){groupBy=g;for(const [id,v] of [["gStatus","status"],["gBrand","brand"],["gType","type"]])$("#"+id).setAttribute("aria-pressed",String(g===v));render()}
@@ -317,6 +342,7 @@ $("#form").addEventListener("submit",e=>{
     const r=await fetch("data/items.json?t="+Date.now(),{cache:"no-store"});
     if(!r.ok)throw new Error(r.status);
     const d=await r.json();items=Array.isArray(d.items)?d.items:[];meta=d;
+    try{const rb=await fetch("data/brands.json?t="+Date.now(),{cache:"no-store"});if(rb.ok)brands=await rb.json()}catch(_){}
   }catch(e){const s=$("#status");s.innerHTML="<strong>Couldn't load your list.</strong> Refresh the page to try again.";s.hidden=false}
   loaded=true;render();
 })();

@@ -1,0 +1,26 @@
+{
+  "Sheike": {
+    "window": "21 days from delivery",
+    "windowShort": "21 days",
+    "fullShort": "refund or credit",
+    "saleShort": "Sheike credit only",
+    "fullPrice": "Refund (instant or standard) or credit note. This includes items on a temporary promotion or bought with a discount code.",
+    "sale": "Marked-down sale items can only be returned for Sheike credit.",
+    "other": "Swimwear and bodysuits must keep the hygiene strip in place. In-store returns have a $400 limit per transaction.",
+    "promoIsFullPrice": true,
+    "url": "https://helpcentre.sheike.com.au/en-US/what-are-your-return-conditions-725116",
+    "checked": "2026-11-23"
+  },
+  "Forever New": {
+    "window": "14 days from purchase or delivery",
+    "windowShort": "14 days",
+    "fullShort": "refund or in-store exchange",
+    "saleShort": "no refund, gift card or exchange only",
+    "fullPrice": "Refund to your original payment method, or an exchange. Exchanges are in store only.",
+    "sale": "Sale items can't be returned for a refund if you change your mind. They can be exchanged for a Forever New gift card or another item.",
+    "other": "Items must be unworn with tags attached. Online orders older than 14 days can't be returned through the portal.",
+    "promoIsFullPrice": false,
+    "url": "https://www.forevernew.com.au/returns",
+    "checked": "2026-11-23"
+  }
+}
