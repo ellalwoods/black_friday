@@ -116,6 +116,29 @@ section.group{padding-top:44px}
 .rlink{color:var(--ink);font-size:13px;font-weight:600}
 .rchk{font-size:12px;color:var(--muted)}
 .rnote{font-size:12px;color:var(--muted);margin:14px 0 0}
+.card[data-open]{cursor:pointer}
+.card[data-open]:focus-visible{outline:2px solid var(--ink);outline-offset:4px}
+#detail{align-items:center}
+.sheet{background:var(--card);color:var(--ink);width:min(880px,100%);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);max-height:calc(100vh - 64px);overflow:auto}
+.dimg{position:relative;background:var(--soft);min-height:460px;overflow:hidden}
+.dimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dinfo{padding:24px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dinfo h3{font-family:var(--display);font-style:italic;font-weight:400;font-size:30px;line-height:1.1;margin:0;text-wrap:balance}
+.dprice .now{font-size:20px}
+.stpill{align-self:flex-start;font:600 10px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.stpill.sale{color:var(--sale)}.stpill.hit{background:var(--sale);color:var(--paper)}.stpill.soldout,.stpill.error{color:var(--warn)}
+.dlist{margin:6px 0 0;display:grid;border-top:1px solid var(--line)}
+.drow{display:grid;grid-template-columns:110px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.drow dt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:2px}
+.drow dd{margin:0;overflow-wrap:anywhere}
+.dret{background:var(--soft);padding:14px;display:grid;gap:6px;font-size:13px;margin-top:6px}
+.dret p{margin:0;color:var(--muted)}
+.dret p.on{color:var(--ink)}
+.dret-h{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.dret-f a{color:var(--ink);font-weight:600}
+.dact{display:flex;gap:8px;align-items:center;margin-top:8px}
+.dact .sp{flex:1}
+@media (max-width:640px){#detail{padding:0;align-items:flex-end}.sheet{grid-template-columns:1fr;max-height:92vh;border-radius:14px 14px 0 0}.dimg{min-height:0;height:min(56vh,460px)}.dinfo{padding:18px 16px 24px}}
 .actions{display:flex;gap:8px;margin-top:auto;padding-top:10px}
 .actions .btn{padding:7px 14px;font-size:12px}
 
@@ -196,6 +219,7 @@ section.group{padding-top:44px}
     </div>
   </form>
 </div>
+<div class="scrim dscrim" id="detail" aria-hidden="true"><div class="sheet" id="dBody" role="dialog" aria-modal="true" aria-labelledby="dTitle"></div></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -241,7 +265,7 @@ function card(it){
     ?`<span class="now s">${aud(it.salePrice)}</span>${it.usualPrice?`<span class="was">${aud(it.usualPrice)}</span>`:""}`
     :(it.usualPrice?`<span class="now">${aud(it.usualPrice)}</span>`:"");
   const link=safeUrl(it.url);
-  return `<article class="card">
+  return `<article class="card" data-open="${esc(it.id)}" tabindex="0" role="button" aria-label="${esc((it.brand||"")+" "+(it.name||""))} details">
     <div class="ph"><div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>${im?`<img src="${esc(im)}" alt="${esc(it.name)}" loading="lazy" onerror="this.remove()">`:""}
       ${off>0&&it.status==="sale"?`<span class="badge">−${off}%</span>`:""}
             <span class="stchip ${esc(stc)}">${st}</span></div>
@@ -252,7 +276,6 @@ function card(it){
       <div class="price">${priceHtml}</div>
       ${it.maxPrice!=null?`<div class="max">Your max ${aud(it.maxPrice)}</div>`:""}
       ${it.scanNote?`<div class="scan">${esc(it.scanNote)}</div>`:""}
-      ${returnsLine(it)}
       <div class="actions">
         ${link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop</a>`:""}
         <button type="button" class="btn ghost" data-edit="${esc(it.id)}">Edit</button>
@@ -272,6 +295,49 @@ function renderReturns(){
      <div><a class="rlink" href="${esc(safeUrl(b.url)||"#")}" target="_blank" rel="noopener">Full policy</a><span class="rchk"> · checked ${esc(new Date(b.checked).toLocaleDateString("en-AU",{day:"numeric",month:"short"}))}</span></div></div>`}).join("")+
    `</div><p class="rnote">Faulty items are covered by Australian Consumer Law whatever the store's sale policy says.</p></section>`;
 }
+function row(label,val){return val?`<div class="drow"><dt>${esc(label)}</dt><dd>${val}</dd></div>`:""}
+function openDetail(id){
+  const it=items.find(i=>i.id===id);if(!it)return;
+  const b=brandInfo(it.brand),off=pctOff(it),hit=isHit(it),im=safeImg(it.image),link=safeUrl(it.url);
+  const onSale=it.status==="sale"&&it.salePrice!=null;
+  const st={sale:hit?"Under your price":"On sale",full:"Full price",soldout:"Sold out in your size",error:"Couldn't check",unchecked:"Not checked yet"}[it.status||"unchecked"]||"Not checked yet";
+  const saleR=b?saleRules(it,b):false;
+  const kind=onSale?(it.saleKind==="promo"?"Promotion":it.saleKind==="markdown"?"Markdown":""):"";
+  let host="";try{host=new URL(it.url).hostname.replace(/^www\./,"")}catch(_){}
+  $("#dBody").innerHTML=`
+   <div class="dimg">${im?`<img src="${esc(im)}" alt="${esc(it.name)}">`:`<div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>`}
+     ${off>0&&onSale?`<span class="badge">−${off}%</span>`:""}</div>
+   <div class="dinfo">
+     <div class="brand">${esc(it.brand)}</div>
+     <h3 id="dTitle">${esc(it.name)}</h3>
+     <div class="price dprice">${onSale?`<span class="now s">${aud(it.salePrice)}</span>${it.usualPrice?`<span class="was">${aud(it.usualPrice)}</span>`:""}`:(it.usualPrice?`<span class="now">${aud(it.usualPrice)}</span>`:"")}</div>
+     <span class="stpill ${esc(hit?"hit":(it.status||"unchecked"))}">${st}</span>
+     <dl class="dlist">
+       ${row("Size / colour",esc(it.variant||""))}
+       ${row("Stock",esc(it.sizeNote||""))}
+       ${row("Discount",esc((kind&&!(it.scanNote||"").toLowerCase().includes(kind.toLowerCase())?[kind,it.scanNote]:[it.scanNote||kind]).filter(Boolean).join(" · ")))}
+       ${row("Your max",it.maxPrice!=null?aud(it.maxPrice)+(onSale?(it.salePrice<=it.maxPrice?" · this is under it":" · still "+aud(it.salePrice-it.maxPrice)+" over"):""):"")}
+       ${row("Priority",esc(PRIO[it.priority]||""))}
+       ${row("Type",esc(it.type||""))}
+       ${row("Notes",esc(it.notes||""))}
+       ${row("Last checked",esc(fmtWhen(it.checkedAt)))}
+       ${row("Shop",esc(host))}
+     </dl>
+     ${b?`<div class="dret">
+       <div class="dret-h">Returns · ${esc(b.window)}</div>
+       <p class="${saleR?"":"on"}"><strong>Full price${b.promoIsFullPrice?" (incl. promotions)":""}:</strong> ${esc(b.fullPrice)}</p>
+       <p class="${saleR?"on":""}"><strong>Sale:</strong> ${esc(b.sale)}</p>
+       ${b.other?`<p><strong>Also:</strong> ${esc(b.other)}</p>`:""}
+       <p class="dret-f">At ${onSale?"this sale price":"this price"} the <strong>${saleR?"sale":"full-price"}</strong> rule applies. <a href="${esc(safeUrl(b.url)||"#")}" target="_blank" rel="noopener">Full policy</a></p>
+     </div>`:`<div class="dret"><div class="dret-h">Returns</div><p>Not looked up yet. The next price check adds this brand's policy.</p></div>`}
+     <div class="dact">${link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop</a>`:""}<button type="button" class="btn ghost" id="dEdit">Edit</button><span class="sp"></span><button type="button" class="btn ghost" id="dClose">Close</button></div>
+   </div>`;
+  $("#dEdit").onclick=()=>{closeDetail();openForm(it)};
+  $("#dClose").onclick=closeDetail;
+  $("#detail").classList.add("open");$("#detail").setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
+  $("#dBody").scrollTop=0;setTimeout(()=>{$("#dClose").focus({preventScroll:true});$("#dBody").scrollTop=0},30);
+}
+function closeDetail(){$("#detail").classList.remove("open");$("#detail").setAttribute("aria-hidden","true");document.body.style.overflow=""}
 function sortItems(a){return a.slice().sort((x,y)=>(isHit(y)-isHit(x))||((y.status==="sale")-(x.status==="sale"))||((y.priority||2)-(x.priority||2))||String(x.name).localeCompare(String(y.name)))}
 function render(){
   renderStats();renderChips();
@@ -288,17 +354,21 @@ function render(){
   keys=groupBy==="status"?keys.sort((a,b)=>STATUS.indexOf(a)-STATUS.indexOf(b)):groupBy==="brand"?keys.sort((a,b)=>a.localeCompare(b)):keys.sort((a,b)=>TYPES.indexOf(a)-TYPES.indexOf(b));
   list.innerHTML=pre+keys.map(k=>{const g=sortItems(groups.get(k));
     const sv=g.filter(i=>i.status==="sale"&&i.usualPrice&&i.salePrice!=null).reduce((a,i)=>a+(i.usualPrice-i.salePrice),0);
-    return `<section class="group"><div class="ghead"><h2>${esc(k)}</h2><span class="cnt">${g.length} ${g.length===1?"piece":"pieces"}</span>${sv>0?`<span class="sv">${aud(sv)} off</span>`:""}</div><div class="grid">${g.map(card).join("")}</div></section>`}).join("")+renderReturns();
+    return `<section class="group"><div class="ghead"><h2>${esc(k)}</h2><span class="cnt">${g.length} ${g.length===1?"piece":"pieces"}</span>${sv>0?`<span class="sv">${aud(sv)} off</span>`:""}</div><div class="grid">${g.map(card).join("")}</div></section>`}).join("");
 }
 
 function setGroup(g){groupBy=g;for(const [id,v] of [["gStatus","status"],["gBrand","brand"],["gType","type"]])$("#"+id).setAttribute("aria-pressed",String(g===v));render()}
 $("#gStatus").onclick=()=>setGroup("status");$("#gBrand").onclick=()=>setGroup("brand");$("#gType").onclick=()=>setGroup("type");
 $("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;if(b.hasAttribute("data-sale"))saleOnly=!saleOnly;else typeFilter=b.dataset.type||null;render()});
-$("#list").addEventListener("click",e=>{const ed=e.target.closest("[data-edit]");if(ed)openForm(items.find(i=>i.id===ed.dataset.edit));if(e.target.closest("[data-add]"))openForm(null)});
+$("#list").addEventListener("click",e=>{const ed=e.target.closest("[data-edit]");if(ed){openForm(items.find(i=>i.id===ed.dataset.edit));return}
+  if(e.target.closest("[data-add]")){openForm(null);return}
+  if(e.target.closest("a,button"))return;const c=e.target.closest("[data-open]");if(c)openDetail(c.dataset.open)});
+$("#list").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-open]")){e.preventDefault();openDetail(e.target.dataset.open)}});
 $("#addBtn").onclick=()=>openForm(null);
 $("#cancelBtn").onclick=closeForm;
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeForm()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#scrim").classList.contains("open"))closeForm()});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if($("#scrim").classList.contains("open"))closeForm();else if($("#detail").classList.contains("open"))closeDetail()});
+$("#detail").addEventListener("click",e=>{if(e.target.id==="detail")closeDetail()});
 $("#fType").innerHTML=`<option value="">Work it out for me</option>`+TYPES.map(t=>`<option>${esc(t)}</option>`).join("");
 
 function openForm(it){
