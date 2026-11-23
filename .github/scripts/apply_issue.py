@@ -277,6 +277,23 @@ def main():
         reply(f"Removed **{it.get('brand')} {it.get('name')}** from your edit.")
         return
 
+    if action in ("bought", "restore"):
+        it = by_id.get(fields.get("id", "").strip())
+        if not it:
+            reply("I couldn't find that piece, so nothing changed.")
+            return
+        if action == "bought":
+            paid = it.get("salePrice") if it.get("status") == "sale" and it.get("salePrice") else it.get("usualPrice")
+            it.update(bought=True, boughtAt=datetime.now(timezone.utc).isoformat(timespec="seconds"), boughtPrice=paid)
+            msg = f"Marked **{it.get('brand')} {it.get('name')}** as bought and moved it to your archive."
+        else:
+            for k in ("bought", "boughtAt", "boughtPrice"):
+                it.pop(k, None)
+            msg = f"Moved **{it.get('brand')} {it.get('name')}** back to your list."
+        json.dump(data, open(DATA, "w"), indent=2, ensure_ascii=False)
+        reply(msg)
+        return
+
     if action == "edit":
         it = by_id.get(fields.get("id", "").strip())
         if not it:
@@ -301,7 +318,7 @@ def main():
               "addedAt": datetime.now(timezone.utc).isoformat(timespec="seconds")}
         items.append(it)
     else:
-        reply("Titles need to start with Add:, Edit: or Remove:.")
+        reply("Titles need to start with Add:, Edit:, Remove:, Bought: or Restore:.")
         return
 
     # Fill in whatever was left blank from the shop's own page.

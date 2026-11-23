@@ -117,6 +117,8 @@ section.group{padding-top:44px}
 .rchk{font-size:12px;color:var(--muted)}
 .rnote{font-size:12px;color:var(--muted);margin:14px 0 0}
 .card[data-open]{cursor:pointer}
+#archBtn{margin-left:auto}
+@media (max-width:640px){.toolbar .seg{order:1}#addBtn{order:2;margin-left:auto;width:38px;height:38px;padding:0;justify-content:center;font-size:20px;font-weight:400}.addtxt{display:none}#archBtn{order:3;margin-left:0;padding:6px 12px;font-size:13px;flex:none}.toolbar .chips{order:4;flex:1 1 0;min-width:0}}
 .card[data-open]:focus-visible{outline:2px solid var(--ink);outline-offset:4px}
 #detail{align-items:center}
 .sheet{background:var(--card);color:var(--ink);width:min(880px,100%);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);max-height:calc(100vh - 64px);overflow:auto}
@@ -188,7 +190,8 @@ section.group{padding-top:44px}
       <button type="button" id="gType" aria-pressed="false">By category</button>
     </div>
     <div class="chips" id="chips"></div>
-    <button type="button" class="btn accent" id="addBtn">+ Add a piece</button>
+    <button type="button" class="btn ghost" id="archBtn" aria-pressed="false">Bought</button>
+    <button type="button" class="btn accent" id="addBtn" aria-label="Add a piece">+<span class="addtxt"> Add a piece</span></button>
   </div>
 
   <div id="status" class="note" hidden></div>
@@ -230,7 +233,7 @@ const cat=it=>CAT_OF[it.type]||"Other";
 const TYPES=["Tops","Knitwear","Dresses","Skirts","Pants & jeans","Outerwear","Tailoring","Activewear","Swim","Shoes","Bags","Jewellery","Accessories","Beauty","Home","Other"];
 const PRIO={1:"Only if cheap",2:"Want",3:"Must have"};
 let items=[], meta={}, brands={}, loaded=false;
-let groupBy="status", typeFilter=null, saleOnly=false, editing=null, delArmed=false;
+let showArchive=false, groupBy="status", typeFilter=null, saleOnly=false, editing=null, delArmed=false;
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -240,21 +243,22 @@ const safeImg=p=>/^images\/[A-Za-z0-9._-]+$/.test(p||"")?p:null;
 function pctOff(it){return (it.salePrice!=null&&it.usualPrice)?Math.round((1-it.salePrice/it.usualPrice)*100):null}
 function isHit(it){return it.status==="sale"&&it.salePrice!=null&&it.maxPrice!=null&&it.salePrice<=it.maxPrice}
 function fmtWhen(iso){if(!iso)return"";const d=new Date(iso);return isNaN(d)?"":d.toLocaleString("en-AU",{weekday:"short",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",timeZone:"Australia/Brisbane"})}
-function src(){return items}
+function active(){return items.filter(i=>!i.bought)}
+function src(){return active()}
 function shown(){return src().filter(it=>(!typeFilter||cat(it)===typeFilter)&&(!saleOnly||it.status==="sale"))}
 
 function renderStats(){
-  const onSale=items.filter(i=>i.status==="sale"),hits=items.filter(isHit);
+  const act=active(),onSale=act.filter(i=>i.status==="sale"),hits=act.filter(isHit);
   const saved=onSale.reduce((a,i)=>a+((i.usualPrice&&i.salePrice!=null)?Math.max(0,i.usualPrice-i.salePrice):0),0);
   $("#stats").innerHTML=`
-   <div class="stat"><span class="n">${items.length}</span><span class="l"> saved</span></div>
+   <div class="stat"><span class="n">${act.length}</span><span class="l"> saved</span></div>
    <div class="stat sale"><span class="n">${onSale.length}</span><span class="l"> on sale</span></div>
    <div class="stat sale"><span class="n">${hits.length}</span><span class="l"> under your price</span></div>
    <div class="stat"><span class="n">${aud(saved)||"$0"}</span><span class="l"> off</span></div>`;
   if(meta.lastRun)$("#scanline").textContent="Checked "+fmtWhen(meta.lastRun);
 }
 function renderChips(){
-  const s=items;
+  const s=active();
   const present=CATS.filter(t=>t!=="Other"||s.some(i=>cat(i)===t));
   $("#chips").innerHTML=`<button type="button" class="chip salechip" data-sale aria-pressed="${saleOnly}">On sale</button>`+
    `<button type="button" class="chip" data-type="" aria-pressed="${!typeFilter}">All</button>`+
@@ -316,6 +320,8 @@ function openDetail(id){
      <div class="price dprice">${onSale?`<span class="now s">${aud(it.salePrice)}</span>${it.usualPrice?`<span class="was">${aud(it.usualPrice)}</span>`:""}`:(it.usualPrice?`<span class="now">${aud(it.usualPrice)}</span>`:"")}</div>
      <span class="stpill ${esc(hit?"hit":(it.status||"unchecked"))}">${st}</span>
      <dl class="dlist">
+       ${it.bought?row("Bought",esc(new Date(it.boughtAt).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}))+(it.boughtPrice!=null?" · "+aud(it.boughtPrice):"")):""}
+       ${it.bought&&returnBy(it)?row("Return by",esc(returnBy(it).toLocaleDateString("en-AU",{weekday:"short",day:"numeric",month:"short"}))+" (estimate, check your delivery date)"):""}
        ${row("Size / colour",esc(it.variant||""))}
        ${row("Stock",esc(it.sizeNote||""))}
        ${row("Discount",esc((kind&&!(it.scanNote||"").toLowerCase().includes(kind.toLowerCase())?[kind,it.scanNote]:[it.scanNote||kind]).filter(Boolean).join(" · ")))}
@@ -333,22 +339,48 @@ function openDetail(id){
        ${b.other?`<p><strong>Also:</strong> ${esc(b.other)}</p>`:""}
        <p class="dret-f">At ${onSale?"this sale price":"this price"} the <strong>${saleR?"sale":"full-price"}</strong> rule applies. <a href="${esc(safeUrl(b.url)||"#")}" target="_blank" rel="noopener">Full policy</a></p>
      </div>`:`<div class="dret"><div class="dret-h">Returns</div><p>Not looked up yet. The next price check adds this brand's policy.</p></div>`}
-     <div class="dact">${link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop</a>`:""}<button type="button" class="btn ghost" id="dEdit">Edit</button><span class="sp"></span><button type="button" class="btn ghost" id="dClose">Close</button></div>
+     <div class="dact">${it.bought?"":(link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Shop</a>`:"")}<button type="button" class="btn ${it.bought?"ghost":"accent"}" id="dBought">${it.bought?"Move back to list":"Bought it"}</button>${it.bought?"":`<button type="button" class="btn ghost" id="dEdit">Edit</button>`}<span class="sp"></span><button type="button" class="btn ghost" id="dClose">Close</button></div>
    </div>`;
-  $("#dEdit").onclick=()=>{closeDetail();openForm(it)};
+  if($("#dEdit"))$("#dEdit").onclick=()=>{closeDetail();openForm(it)};
+  let armed=false;$("#dBought").onclick=()=>{
+    if(!armed){armed=true;$("#dBought").textContent=it.bought?"Tap again to move back":"Tap again to confirm";return}
+    go(issueUrl(`${it.bought?"Restore":"Bought"}: ${it.brand} ${it.name}`,`ID: ${it.id}\n\nPress Create to ${it.bought?"move this piece back to your list":"mark this piece as bought and move it to your archive"}.`));
+  };
   $("#dClose").onclick=closeDetail;
   $("#detail").classList.add("open");$("#detail").setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
   $("#dBody").scrollTop=0;setTimeout(()=>{$("#dClose").focus({preventScroll:true});$("#dBody").scrollTop=0},30);
 }
 function closeDetail(){$("#detail").classList.remove("open");$("#detail").setAttribute("aria-hidden","true");document.body.style.overflow=""}
 function sortItems(a){return a.slice().sort((x,y)=>(isHit(y)-isHit(x))||((y.status==="sale")-(x.status==="sale"))||((y.priority||2)-(x.priority||2))||String(x.name).localeCompare(String(y.name)))}
+function returnBy(it){const b=brandInfo(it.brand);if(!b||!it.boughtAt)return null;const m=String(b.windowShort||"").match(/(\d+)/);if(!m)return null;
+  const d=new Date(it.boughtAt);d.setDate(d.getDate()+parseInt(m[1],10));return d}
+function archiveCard(it){
+  const im=safeImg(it.image),rb=returnBy(it),link=safeUrl(it.url),left=rb?Math.ceil((rb-new Date())/864e5):null;
+  return `<article class="card bought" data-open="${esc(it.id)}" tabindex="0" role="button" aria-label="${esc((it.brand||"")+" "+(it.name||""))} details">
+    <div class="ph"><div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>${im?`<img src="${esc(im)}" alt="${esc(it.name)}" loading="lazy" onerror="this.remove()">`:""}<span class="stchip">Bought</span></div>
+    <div class="body"><div class="brand">${esc(it.brand)}</div><div class="name">${esc(it.name)}</div>
+      ${it.variant?`<div class="variant">${esc(it.variant)}</div>`:""}
+      <div class="price">${it.boughtPrice!=null?`<span class="now">${aud(it.boughtPrice)}</span>`:""}</div>
+      <div class="scan">Bought ${esc(new Date(it.boughtAt).toLocaleDateString("en-AU",{day:"numeric",month:"short"}))}</div>
+      ${rb?`<div class="ret${left!=null&&left<=5?" strict":""}">${left>=0?`Return by ${esc(rb.toLocaleDateString("en-AU",{weekday:"short",day:"numeric",month:"short"}))} (about ${left} day${left===1?"":"s"} left)`:"Return window has passed"}</div>`:""}
+    </div></article>`;
+}
+function renderArchive(list){
+  const b=items.filter(i=>i.bought).sort((x,y)=>String(y.boughtAt).localeCompare(String(x.boughtAt)));
+  const paid=b.reduce((a,i)=>a+(i.boughtPrice||0),0),saved=b.reduce((a,i)=>a+((i.usualPrice&&i.boughtPrice!=null)?Math.max(0,i.usualPrice-i.boughtPrice):0),0);
+  list.innerHTML=`<section class="group"><div class="ghead"><h2>Bought</h2><span class="cnt">${b.length} ${b.length===1?"piece":"pieces"}${b.length?` · ${aud(paid)} spent`:""}</span>${saved>0?`<span class="sv">${aud(saved)} saved</span>`:""}</div>
+   ${b.length?`<div class="grid">${b.map(archiveCard).join("")}</div>`:`<div class="empty"><p>Nothing bought yet. Open a piece and tap <strong>Bought it</strong> to move it here.</p></div>`}</section>`;
+}
 function render(){
   renderStats();renderChips();
   const list=$("#list");if(!loaded){list.innerHTML="";return}
+  const nb=items.filter(i=>i.bought).length;$("#archBtn").textContent=showArchive?"Back to list":`Bought${nb?` (${nb})`:""}`;$("#archBtn").setAttribute("aria-pressed",String(showArchive));
+  $("#chips").style.visibility=showArchive?"hidden":"";document.querySelector(".seg").style.visibility=showArchive?"hidden":"";
+  if(showArchive){renderArchive(list);return}
   let pre="";
-  if(!items.length)pre=`<div class="empty"><h2>Start your edit</h2><p>Add each piece you're eyeing with its link, size and the most you'd pay. You can also send links to Claude in chat. On each check date Claude visits every link, records the sale price and flags what's dropped under your price.</p><p><button type="button" class="btn accent" data-add>+ Add your first piece</button></p></div>`;
+  if(!active().length)pre=`<div class="empty"><h2>${items.length?"All bought":"Start your edit"}</h2><p>Add each piece you're eyeing with its link, size and the most you'd pay. You can also send links to Claude in chat. On each check date Claude visits every link, records the sale price and flags what's dropped under your price.</p><p><button type="button" class="btn accent" data-add>+ Add your first piece</button></p></div>`;
   const s=shown();
-  if(!s.length){list.innerHTML=pre+`${items.length?'<div class="empty"><p>Nothing matches these filters.</p></div>':""}`;return}
+  if(!s.length){list.innerHTML=pre+`${active().length?'<div class="empty"><p>Nothing matches these filters.</p></div>':""}`;return}
   const groups=new Map();
   const STATUS=["On sale","Not on sale","Unavailable"];
   const statusOf=it=>it.status==="soldout"?"Unavailable":it.status==="sale"?"On sale":"Not on sale";
@@ -368,6 +400,7 @@ $("#list").addEventListener("click",e=>{const ed=e.target.closest("[data-edit]")
   if(e.target.closest("a,button"))return;const c=e.target.closest("[data-open]");if(c)openDetail(c.dataset.open)});
 $("#list").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-open]")){e.preventDefault();openDetail(e.target.dataset.open)}});
 $("#addBtn").onclick=()=>openForm(null);
+$("#archBtn").onclick=()=>{showArchive=!showArchive;render();window.scrollTo(0,0)};
 $("#cancelBtn").onclick=closeForm;
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeForm()});
 document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if($("#scrim").classList.contains("open"))closeForm();else if($("#detail").classList.contains("open"))closeDetail()});

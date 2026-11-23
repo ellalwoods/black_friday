@@ -40,6 +40,8 @@ def main():
     changed = False
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     for it in data.get("items", []):
+        if it.get("bought"):
+            continue
         info = None
         if not it.get("brand") or not it.get("name") or not it.get("usualPrice") or not it.get("type"):
             try:
@@ -59,6 +61,30 @@ def main():
                 g = guess_type(it.get("name"), info.get("category"))
                 if g:
                     it["type"] = g; changed = True
+        if not it.get("checkedAt"):
+            # First sale check for a newly added piece.
+            if info is None:
+                try:
+                    info = shop_details(it["url"])
+                except Exception as e:  # noqa: BLE001
+                    print("price check failed:", it.get("url"), e, file=sys.stderr)
+                    info = {}
+            price, was = info.get("price"), info.get("was")
+            base = was or it.get("usualPrice")
+            if price:
+                if base and price < base - 0.009:
+                    it.update(status="sale", salePrice=price, saleKind=it.get("saleKind") or "markdown")
+                    if not it.get("usualPrice"):
+                        it["usualPrice"] = base
+                    it["scanNote"] = f"On sale when added ({round((1 - price / base) * 100)}% off)"
+                else:
+                    if it.get("status") in (None, "", "unchecked"):
+                        it["status"] = "full"
+                    it["scanNote"] = it.get("scanNote") or "Full price when added"
+            else:
+                it["scanNote"] = it.get("scanNote") or "Couldn't read the price when added"
+            it["checkedAt"] = now
+            changed = True
         if not it.get("image"):
             src = it.get("imageSrc") or (info or {}).get("image")
             if not src:
