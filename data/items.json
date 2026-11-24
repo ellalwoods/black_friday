@@ -189,6 +189,24 @@
       "addedAt": "2026-11-23T06:47:39+00:00",
       "sizeNote": "Size S sold out",
       "stockCheckedAt": "2026-11-23T21:12:03+00:00"
+    },
+    {
+      "id": "85b4f2d59b",
+      "url": "https://kirstinash.com/products/sacred-sun-chain-earrings-18k-gold-plated",
+      "brand": "Kirstin Ash",
+      "name": "Sacred Sun Chain Earrings",
+      "type": "Jewellery",
+      "variant": "Pair · 18k gold plated",
+      "usualPrice": null,
+      "maxPrice": null,
+      "priority": 2,
+      "notes": "Also comes in sterling silver",
+      "image": null,
+      "status": "unchecked",
+      "salePrice": null,
+      "checkedAt": null,
+      "scanNote": "",
+      "addedAt": "2026-11-24T00:13:34+00:00"
     }
   ],
   "schema": 2
