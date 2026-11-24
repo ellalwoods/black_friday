@@ -166,9 +166,9 @@ section.group{padding-top:44px}
 .drop p{margin:0;font-size:13px;color:var(--muted)}
 .mfoot{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .mfoot .sp{flex:1}
-#connect{z-index:25}
 .steps{margin:0;padding-left:20px;font-size:14px;display:grid;gap:4px}
 .steps a{color:var(--ink);font-weight:600}
+.fnote{margin:2px 0 0;font-size:12px;color:var(--muted)}
 .hint{margin:0;font-size:13px;color:var(--muted);background:var(--soft);padding:12px}
 .err{color:var(--ink);font-weight:600;font-size:13px;min-height:1em}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;font-size:14px;border-radius:999px;display:none;z-index:30}
@@ -201,27 +201,18 @@ section.group{padding-top:44px}
   <main id="list"></main>
 </div>
 
-<div class="scrim" id="connect" aria-hidden="true">
-  <form class="modal" id="cForm" role="dialog" aria-modal="true" aria-labelledby="cTitle" novalidate>
-    <h3 id="cTitle">Connect this device</h3>
-    <p class="hint">To save changes, the app needs a GitHub key that can only edit your <strong>black_friday</strong> repo. You only do this once. The key stays on this device and isn't saved to the site.</p>
-    <ol class="steps">
-      <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub's new token page</a> (signed in as ellalwoods).</li>
-      <li>Name it "BF Edit". Set Expiration to <strong>No expiration</strong>.</li>
-      <li>Under Repository access choose <strong>Only select repositories</strong> and pick <strong>black_friday</strong>.</li>
-      <li>Under Permissions → Repository permissions set <strong>Contents</strong> to <strong>Read and write</strong>.</li>
-      <li>Press Generate token, copy it and paste it below.</li>
-    </ol>
-    <div class="f"><label for="cTok">GitHub key</label><input id="cTok" type="password" autocomplete="off" placeholder="github_pat_…"></div>
-    <div class="err" id="cErr" role="alert"></div>
-    <div class="mfoot"><button type="button" class="btn danger" id="cForget" hidden>Disconnect</button><span class="sp"></span><button type="button" class="btn ghost" id="cCancel">Cancel</button><button type="submit" class="btn" id="cSave">Connect</button></div>
-  </form>
+<div class="scrim" id="howAdd" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="hTitle">
+    <h3 id="hTitle">Add a piece</h3>
+    <p class="hint">Send the product link to Claude in your chat, with your size if it's not an 8. Claude adds it here with the photo, price, your size's stock and the return policy, and it's included in every price check.</p>
+    <div class="mfoot"><span class="sp"></span><button type="button" class="btn" id="hClose">Got it</button></div>
+  </div>
 </div>
 <div class="scrim" id="scrim" aria-hidden="true">
   <form class="modal" id="form" role="dialog" aria-modal="true" aria-labelledby="mTitle" novalidate>
     <h3 id="mTitle">Add a piece</h3>
     <div class="fgrid">
-      <div class="f full"><label for="fUrl">Product link</label><input id="fUrl" type="url" placeholder="Paste the link from the shop" required></div>
+      <div class="f full"><label for="fUrl">Product link</label><input id="fUrl" type="url" readonly><p class="fnote">To change the link, send the new one to Claude.</p></div>
       <div class="f"><label for="fBrand">Brand</label><input id="fBrand" list="brandList" placeholder="Leave blank to fill in"><datalist id="brandList"></datalist></div>
       <div class="f"><label for="fType">Category</label><select id="fType"></select></div>
       <div class="f full"><label for="fName">Item</label><input id="fName" placeholder="Leave blank to fill in"></div>
@@ -231,8 +222,8 @@ section.group{padding-top:44px}
       <div class="f"><label for="fPrio">Priority</label><select id="fPrio"><option value="2">Want</option><option value="3">Must have</option><option value="1">Only if cheap</option></select></div>
       <div class="f full"><label for="fPhoto">Photo (optional)</label>
         <div class="drop"><div class="thumb" id="thumb">Shop photo</div>
-          <div style="display:grid;gap:6px"><input id="fPhoto" type="file" accept="image/*"><p>Leave this empty to use the shop's own photo.</p></div></div></div>
-      <div class="f full"><p class="hint">Only the link is needed. Anything you leave blank is filled in from the shop's page a minute or two after you save, and the price is checked for a sale. Add your size and the most you'd pay so the price checks can flag a deal.</p></div>
+          <div style="display:grid;gap:6px"><input id="fPhoto" type="file" accept="image/*"><p>Leave this empty to keep the current photo.</p></div></div></div>
+      <div class="f full"><p class="hint">Changes save on this phone. If you change the size, tell Claude too so the stock checks use it.</p></div>
       <div class="f full"><label for="fNotes">Notes</label><textarea id="fNotes" placeholder="Anything to remember, like 'runs small'"></textarea></div>
     </div>
     <div class="err" id="fErr" role="alert"></div>
@@ -286,10 +277,10 @@ function renderChips(){
    `<button type="button" class="chip" data-type="" aria-pressed="${!typeFilter}">All</button>`+
    present.map(t=>`<button type="button" class="chip" data-type="${esc(t)}" aria-pressed="${typeFilter===t}">${esc(t)}</button>`).join("");
 }
-function imgSrc(it){const p=safeImg(it.image);return p?p+(it.imageV?"?v="+encodeURIComponent(it.imageV):""):null}
-function imgTag(it,lazy){const p=safeImg(it.image);if(!p)return"";return `<img src="${esc(imgSrc(it))}" alt="${esc(it.name)}"${lazy?' loading="lazy"':""} onerror="if(!this.dataset.r){this.dataset.r=1;this.src='${RAW}${esc(p)}'}else{this.remove()}">`}
+function imgSrc(it){if(it._localPhoto)return it._localPhoto;const p=safeImg(it.image);return p?p+(it.imageV?"?v="+encodeURIComponent(it.imageV):""):null}
+function imgTag(it,lazy){if(it._localPhoto)return `<img src="${esc(it._localPhoto)}" alt="${esc(it.name)}">`;const p=safeImg(it.image);if(!p)return"";return `<img src="${esc(imgSrc(it))}" alt="${esc(it.name)}"${lazy?' loading="lazy"':""} onerror="if(!this.dataset.r){this.dataset.r=1;this.src='${RAW}${esc(p)}'}else{this.remove()}">`}
 function card(it){
-  const off=pctOff(it),hit=isHit(it),im=safeImg(it.image);
+  const off=pctOff(it),hit=isHit(it),im=safeImg(it.image)||it._localPhoto;
   const st={sale:hit?"Under your price":"On sale",full:"Full price",soldout:"Sold out in your size",error:"Couldn't check",unchecked:"Not checked yet"}[it.status||"unchecked"]||"Not checked yet";
   const stc=hit?"hit":(it.status||"unchecked");
   const priceHtml=(it.status==="sale"&&it.salePrice!=null)
@@ -336,7 +327,7 @@ function openDetail(id){
   const kind=onSale?(it.saleKind==="promo"?"Promotion":it.saleKind==="markdown"?"Markdown":""):"";
   let host="";try{host=new URL(it.url).hostname.replace(/^www\./,"")}catch(_){}
   $("#dBody").innerHTML=`
-   <div class="dimg">${im?imgTag(it,false):`<div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>`}
+   <div class="dimg">${(im||it._localPhoto)?imgTag(it,false):`<div class="mono" aria-hidden="true">${esc((it.brand||"?").trim().slice(0,1).toUpperCase())}</div>`}
      ${off>0&&onSale?`<span class="badge">−${off}%</span>`:""}</div>
    <div class="dinfo">
      <div class="brand">${esc(it.brand)}</div>
@@ -422,14 +413,15 @@ function setGroup(g){groupBy=g;for(const [id,v] of [["gStatus","status"],["gBran
 $("#gStatus").onclick=()=>setGroup("status");$("#gBrand").onclick=()=>setGroup("brand");$("#gType").onclick=()=>setGroup("type");
 $("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;if(b.hasAttribute("data-sale"))saleOnly=!saleOnly;else typeFilter=b.dataset.type||null;render()});
 $("#list").addEventListener("click",e=>{const ed=e.target.closest("[data-edit]");if(ed){openForm(items.find(i=>i.id===ed.dataset.edit));return}
-  if(e.target.closest("[data-add]")){openForm(null);return}
+  if(e.target.closest("[data-add]")){$("#addBtn").click();return}
   if(e.target.closest("a,button"))return;const c=e.target.closest("[data-open]");if(c)openDetail(c.dataset.open)});
 $("#list").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-open]")){e.preventDefault();openDetail(e.target.dataset.open)}});
-$("#addBtn").onclick=()=>openForm(null);
+$("#addBtn").onclick=()=>{$("#howAdd").classList.add("open");$("#howAdd").setAttribute("aria-hidden","false")};
+$("#hClose").onclick=()=>{$("#howAdd").classList.remove("open");$("#howAdd").setAttribute("aria-hidden","true")};
 $("#archBtn").onclick=()=>{showArchive=!showArchive;render();window.scrollTo(0,0)};
 $("#cancelBtn").onclick=closeForm;
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeForm()});
-document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if($("#connect").classList.contains("open")){afterConnect=null;closeConnect()}else if($("#scrim").classList.contains("open"))closeForm();else if($("#detail").classList.contains("open"))closeDetail()});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if($("#howAdd").classList.contains("open")){$("#hClose").click()}else if($("#scrim").classList.contains("open"))closeForm();else if($("#detail").classList.contains("open"))closeDetail()});
 $("#detail").addEventListener("click",e=>{if(e.target.id==="detail")closeDetail()});
 $("#fType").innerHTML=`<option value="">Work it out for me</option>`+CATS.map(t=>`<option>${esc(t)}</option>`).join("");
 
@@ -439,7 +431,7 @@ function openForm(it){
   $("#fUrl").value=it?.url||"";$("#fBrand").value=it?.brand||"";$("#fName").value=it?.name||"";
   $("#fType").value=it?(cat(it)):"";$("#fVariant").value=it?.variant||"";
   $("#fUsual").value=it?.usualPrice??"";$("#fMax").value=it?.maxPrice??"";$("#fPrio").value=String(it?.priority||2);
-  $("#fNotes").value=it?.notes||"";$("#fErr").textContent="";$("#fPhoto").value="";pendingImage=null;setThumb(it&&safeImg(it.image)?imgSrc(it):null);
+  $("#fNotes").value=it?.notes||"";$("#fErr").textContent="";$("#fPhoto").value="";pendingImage=null;setThumb(it&&(safeImg(it.image)||it._localPhoto)?imgSrc(it):null);
   $("#delBtn").hidden=!it;$("#delBtn").textContent="Remove";
   $("#brandList").innerHTML=[...new Set(items.map(i=>i.brand).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join("");
   $("#scrim").classList.add("open");$("#scrim").setAttribute("aria-hidden","false");
@@ -455,71 +447,26 @@ function applyBought(){const m=readBought();for(const it of items){const b=m[it.
 function readRemoved(){try{return JSON.parse(localStorage.getItem("bf_removed")||"{}")||{}}catch(_){return{}}}
 function writeRemoved(m){try{localStorage.setItem("bf_removed",JSON.stringify(m))}catch(_){}}
 function markServer(list){const rm=readRemoved();list=list.filter(i=>!rm[i.id]);for(const it of list)if(it.bought)it._serverBought=true;return list}
-/* ---------- saving straight to GitHub ---------- */
-const GH="https://api.github.com/repos/"+REPO;
+/* ---------- edits and photos, kept on this device ---------- */
 const RAW="https://raw.githubusercontent.com/"+REPO+"/main/";
-function tok(){try{return localStorage.getItem("bf_token")||""}catch(_){return ""}}
-function setTok(t){try{t?localStorage.setItem("bf_token",t):localStorage.removeItem("bf_token")}catch(_){}}
-const b64enc=str=>{const b=new TextEncoder().encode(str);let s="";for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s)};
-const b64dec=b64=>new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s/g,"")),c=>c.charCodeAt(0)));
-async function gh(path,opts={}){
-  const r=await fetch(GH+path,{...opts,cache:"no-store",headers:{Authorization:"Bearer "+tok(),Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(opts.headers||{})}});
-  if(!r.ok){const e=new Error("GitHub "+r.status);e.status=r.status;throw e}
-  return r.status===204?null:r.json();
-}
-async function readItems(){const f=await gh("/contents/data/items.json?ref=main");return{sha:f.sha,data:JSON.parse(b64dec(f.content))}}
-async function mutate(fn,message){
-  for(let attempt=0;attempt<4;attempt++){
-    const {sha,data}=await readItems();
-    const out=fn(data);
-    try{
-      await gh("/contents/data/items.json",{method:"PUT",body:JSON.stringify({message,branch:"main",sha,content:b64enc(JSON.stringify(data,null,2)+"\n")})});
-      items=markServer(data.items||[]);applyBought();meta=data;render();scheduleRefresh();return out;
-    }catch(e){if(e.status!==409&&e.status!==422)throw e;await new Promise(r=>setTimeout(r,800))}
-  }
-  throw new Error("conflict");
-}
-async function putImage(path,blob){
-  const b64=await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(",")[1]);fr.onerror=rej;fr.readAsDataURL(blob)});
-  let sha;try{sha=(await gh("/contents/"+path+"?ref=main")).sha}catch(_){}
-  await gh("/contents/"+path,{method:"PUT",body:JSON.stringify({message:"Photo for "+path,branch:"main",content:b64,...(sha?{sha}:{})})});
-}
-async function deleteFile(path){try{const f=await gh("/contents/"+path+"?ref=main");await gh("/contents/"+path,{method:"DELETE",body:JSON.stringify({message:"Remove "+path,branch:"main",sha:f.sha})})}catch(_){}}
-let refreshTimers=[];
-function scheduleRefresh(){refreshTimers.forEach(clearTimeout);refreshTimers=[60,120,200].map(sec=>setTimeout(refresh,sec*1000))}
-async function refresh(){if(!tok())return;try{const {data}=await readItems();items=markServer(data.items||[]);applyBought();meta=data;render()}catch(_){}}
-function friendly(e){
-  if(e&&(e.status===401||e.status===403)){setTok("");return"GitHub didn't accept the key. It may have expired or be missing Contents: Read and write. Try again and you'll be asked to reconnect."}
-  if(e&&e.status===404)return"GitHub can't see the black_friday repo with this key. Check the key has access to it.";
-  return"Couldn't save. Check your connection and try again.";
-}
-let afterConnect=null;
-function needToken(then){if(tok())return then();afterConnect=then;openConnect()}
-function openConnect(){$("#cTok").value="";$("#cErr").textContent="";$("#cForget").hidden=!tok();$("#connect").classList.add("open");$("#connect").setAttribute("aria-hidden","false");setTimeout(()=>$("#cTok").focus(),30)}
-function closeConnect(){$("#connect").classList.remove("open");$("#connect").setAttribute("aria-hidden","true")}
-$("#cCancel").onclick=()=>{afterConnect=null;closeConnect()};
-$("#cForget").onclick=()=>{setTok("");closeConnect();toast("Disconnected this device")};
-$("#cForm").addEventListener("submit",async e=>{
-  e.preventDefault();const t=$("#cTok").value.trim();if(!t){$("#cErr").textContent="Paste the key from GitHub.";return}
-  const old=tok();setTok(t);$("#cSave").disabled=true;$("#cSave").textContent="Checking…";
-  try{const {data}=await readItems();items=markServer(data.items||[]);applyBought();meta=data;render();closeConnect();toast("Connected");const f=afterConnect;afterConnect=null;if(f)f()}
-  catch(err){setTok(old);$("#cErr").textContent=friendly(err)}
-  finally{$("#cSave").disabled=false;$("#cSave").textContent="Connect"}
-});
-
+function readEdits(){try{return JSON.parse(localStorage.getItem("bf_edits")||"{}")||{}}catch(_){return{}}}
+function writeEdits(m){try{localStorage.setItem("bf_edits",JSON.stringify(m));return true}catch(_){return false}}
+function localPhoto(id){try{return localStorage.getItem("bf_photo_"+id)}catch(_){return null}}
+function applyEdits(){const m=readEdits();for(const it of items){const e=m[it.id];if(e)Object.assign(it,e);const ph=localPhoto(it.id);if(ph)it._localPhoto=ph}}
+function refresh(){}
 /* photo picker */
 let pendingImage=null;
 function setThumb(src){$("#thumb").innerHTML=src?`<img src="${esc(src)}" alt="">`:"Shop photo"}
 async function shrink(file){
   const url=URL.createObjectURL(file);
   try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
-    const sc=Math.min(1,1100/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement("canvas");
+    const sc=Math.min(1,800/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement("canvas");
     c.width=Math.round(img.naturalWidth*sc);c.height=Math.round(img.naturalHeight*sc);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
-    return await new Promise(r=>c.toBlob(b=>r(b||file),"image/jpeg",.84));
+    return c.toDataURL("image/jpeg",.8);
   }catch(_){return file}finally{URL.revokeObjectURL(url)}
 }
 $("#fPhoto").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;if(!/^image\//.test(f.type)){$("#fErr").textContent="That file isn't an image.";return}
-  const blob=await shrink(f);if(pendingImage)URL.revokeObjectURL(pendingImage.preview);pendingImage={blob,preview:URL.createObjectURL(blob)};setThumb(pendingImage.preview)});
+  const dataUrl=await shrink(f);if(typeof dataUrl!=="string"){$("#fErr").textContent="Couldn't read that photo.";return}pendingImage={preview:dataUrl};setThumb(dataUrl)});
 
 const newId=()=>Array.from(crypto.getRandomValues(new Uint8Array(5)),b=>b.toString(16).padStart(2,"0")).join("");
 const nowIso=()=>new Date().toISOString().replace(/\.\d+Z$/,"+00:00");
@@ -530,44 +477,22 @@ $("#delBtn").onclick=()=>{
   items=items.filter(i=>i.id!==editing.id);closeForm();render();toast("Removed");
 };
 $("#form").addEventListener("submit",e=>{
-  e.preventDefault();
-  const url=$("#fUrl").value.trim();
-  if(!safeUrl(url)){$("#fErr").textContent="Paste the full product link, starting with https://";return}
-  needToken(saveForm);
-});
-async function saveForm(){
-  const url=$("#fUrl").value.trim(),btn=$("#saveBtn");btn.disabled=true;btn.textContent="Saving…";$("#fErr").textContent="";
+  e.preventDefault();if(!editing){closeForm();return}
   const num=v=>{const n=parseFloat(v);return isNaN(n)?null:Math.round(n*100)/100};
-  const fields={url,brand:$("#fBrand").value.trim(),name:$("#fName").value.trim(),type:$("#fType").value,variant:$("#fVariant").value.trim(),
+  const fields={brand:$("#fBrand").value.trim(),name:$("#fName").value.trim(),variant:$("#fVariant").value.trim(),
     usualPrice:num($("#fUsual").value),maxPrice:num($("#fMax").value),priority:parseInt($("#fPrio").value,10)||2,notes:$("#fNotes").value.trim()};
-  const id=editing?editing.id:newId();
-  try{
-    if(pendingImage){await putImage(`images/${id}.jpg`,pendingImage.blob);fields.image=`images/${id}.jpg`;fields.imageV=Date.now()}
-    await mutate(d=>{
-      d.items=d.items||[];
-      const it=d.items.find(i=>i.id===id);
-      if(it){
-        const urlChanged=it.url!==fields.url,varChanged=it.variant!==fields.variant;
-        if(!fields.type)fields.type=it.type||"";
-        Object.assign(it,fields);
-        if(urlChanged)Object.assign(it,{status:"unchecked",salePrice:null,saleKind:null,checkedAt:null,scanNote:"",sizeNote:null,stockCheckedAt:null});
-        else if(varChanged)Object.assign(it,{sizeNote:null,stockCheckedAt:null});
-      }else{
-        d.items.push({id,image:null,...fields,status:"unchecked",salePrice:null,checkedAt:null,scanNote:"",addedAt:nowIso()});
-      }
-    },(editing?"Edit ":"Add ")+([fields.brand,fields.name].filter(Boolean).join(" ")||url));
-    const wasEdit=!!editing;closeForm();
-    toast(wasEdit?"Saved":"Added. Details, photo and sale check follow in a minute or two");
-  }catch(err){$("#fErr").textContent=friendly(err)}
-  finally{btn.disabled=false;btn.textContent="Save"}
-}
+  if($("#fType").value)fields.type=$("#fType").value;
+  const m=readEdits();m[editing.id]={...(m[editing.id]||{}),...fields};
+  if(!writeEdits(m)){$("#fErr").textContent="Couldn't save on this phone. Storage may be full.";return}
+  if(pendingImage){try{localStorage.setItem("bf_photo_"+editing.id,pendingImage.preview)}catch(_){$("#fErr").textContent="The photo is too big to save on this phone. Try a smaller one.";return}}
+  applyEdits();closeForm();render();toast("Saved");
+});
 (async()=>{
   render();
   try{
     let d=null;
-    if(tok()){try{d=(await readItems()).data}catch(_){d=null}}
     if(!d){const r=await fetch("data/items.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);d=await r.json()}
-    items=markServer(Array.isArray(d.items)?d.items:[]);applyBought();meta=d;
+    items=markServer(Array.isArray(d.items)?d.items:[]);applyBought();applyEdits();meta=d;
     try{const rb=await fetch("data/brands.json?t="+Date.now(),{cache:"no-store"});if(rb.ok)brands=await rb.json()}catch(_){}
   }catch(e){const s=$("#status");s.innerHTML="<strong>Couldn't load your list.</strong> Refresh the page to try again.";s.hidden=false}
   loaded=true;render();
