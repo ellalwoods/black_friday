@@ -1,5 +1,5 @@
 {
-  "lastRun": "2026-11-23T21:11:27+00:00",
+  "lastRun": "2026-11-24T21:39:28+00:00",
   "items": [
     {
       "id": "e8c70e58ef",
@@ -16,11 +16,11 @@
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009325_ARDEN_MAXI_DRESS_PAISLEY_CHECK-20.jpg?v=1793225483&width=1200",
       "status": "soldout",
       "salePrice": null,
-      "checkedAt": "2026-11-23T21:11:27+00:00",
-      "scanNote": "",
+      "checkedAt": "2026-11-24T21:39:28+00:00",
+      "scanNote": "Full price; only size 10 left",
       "addedAt": "2026-11-22T09:09:59+00:00",
       "sizeNote": "Size 8 sold out",
-      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
+      "stockCheckedAt": "2026-11-24T21:39:28+00:00"
     },
     {
       "id": "52f3fc30be",
@@ -37,11 +37,11 @@
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009223_CATALINE_MAXI_DRESS_PRINT-33.jpg?crop=center&height=1200&v=1791777127&width=1200",
       "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-23T21:11:27+00:00",
-      "scanNote": "",
+      "checkedAt": "2026-11-24T21:39:28+00:00",
+      "scanNote": "Not in Sheike's 25% off edit",
       "addedAt": "2026-11-22T09:09:59+00:00",
       "sizeNote": "Size 8 in stock",
-      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
+      "stockCheckedAt": "2026-11-24T21:39:28+00:00"
     },
     {
       "id": "a9d3e96d3c",
@@ -58,11 +58,11 @@
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009186_MARIETTA_DRESS_WHITE-070.jpg?crop=center&height=1200&v=1790747242&width=1200",
       "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-23T21:11:27+00:00",
-      "scanNote": "",
+      "checkedAt": "2026-11-24T21:39:28+00:00",
+      "scanNote": "Not in Sheike's 25% off edit",
       "addedAt": "2026-11-22T09:09:59+00:00",
       "sizeNote": "Size 8 in stock",
-      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
+      "stockCheckedAt": "2026-11-24T21:39:28+00:00"
     },
     {
       "id": "fb68337b22",
@@ -79,12 +79,12 @@
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009099_JOEY_TOP_SPOT_12-11.jpg?crop=center&height=1200&v=1787293316&width=1200",
       "status": "sale",
       "salePrice": 90.0,
-      "checkedAt": "2026-11-23T21:11:27+00:00",
-      "scanNote": "25% off promotion",
+      "checkedAt": "2026-11-24T21:39:28+00:00",
+      "scanNote": "25% off the Black Friday edit",
       "addedAt": "2026-11-22T09:09:59+00:00",
       "sizeNote": "Size 8 in stock",
       "saleKind": "promo",
-      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
+      "stockCheckedAt": "2026-11-24T21:39:28+00:00"
     },
     {
       "id": "989bb2ec30",
@@ -101,12 +101,12 @@
       "imageSrc": "https://www.sheike.com.au/cdn/shop/files/1009099_JOEY_TOP_SPOT_12-11_60723ff2-5276-4e99-8d4e-f6c347d53ae2.jpg?crop=center&height=1200&v=1787293624&width=1200",
       "status": "soldout",
       "salePrice": 105.0,
-      "checkedAt": "2026-11-23T21:11:27+00:00",
+      "checkedAt": "2026-11-24T21:39:28+00:00",
       "scanNote": "25% off promotion",
       "addedAt": "2026-11-22T09:09:59+00:00",
       "sizeNote": "Size 8 sold out",
       "saleKind": "promo",
-      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
+      "stockCheckedAt": "2026-11-24T21:39:28+00:00"
     },
     {
       "id": "2ef8b2907c",
@@ -164,11 +164,11 @@
       "image": "images/f5fb2c5c70.jpg",
       "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-23T21:11:27+00:00",
+      "checkedAt": "2026-11-24T21:39:28+00:00",
       "scanNote": "Not in Sheike's 25% off edit",
       "addedAt": "2026-11-23T06:47:39+00:00",
       "sizeNote": "Size S in stock",
-      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
+      "stockCheckedAt": "2026-11-24T21:39:28+00:00"
     },
     {
       "id": "c2668c3a25",
@@ -184,11 +184,11 @@
       "image": "images/c2668c3a25.jpg",
       "status": "soldout",
       "salePrice": null,
-      "checkedAt": "2026-11-23T21:11:27+00:00",
+      "checkedAt": "2026-11-24T21:39:28+00:00",
       "scanNote": "Not in Sheike's 25% off edit",
       "addedAt": "2026-11-23T06:47:39+00:00",
       "sizeNote": "Size S sold out",
-      "stockCheckedAt": "2026-11-23T21:12:03+00:00"
+      "stockCheckedAt": "2026-11-24T21:39:28+00:00"
     },
     {
       "id": "85b4f2d59b",
@@ -204,9 +204,29 @@
       "image": "images/85b4f2d59b.jpg",
       "status": "full",
       "salePrice": null,
-      "checkedAt": "2026-11-24T01:22:34+00:00",
-      "scanNote": "$139 for the pair. Not included in the 20% off Black Friday sale so far",
+      "checkedAt": "2026-11-24T21:39:28+00:00",
+      "scanNote": "$139 for the pair. Not in the Black Friday collection (20% off most, 30% off selected)",
       "addedAt": "2026-11-24T00:13:34+00:00"
+    },
+    {
+      "id": "afb62e848a",
+      "url": "https://kirstinash.com/products/sacred-sun-ear-jacket-18k-gold-plated",
+      "brand": "Kirstin Ash",
+      "name": "Sacred Sun Ear Jacket",
+      "type": "Jewellery",
+      "variant": "18k gold plated",
+      "usualPrice": 159.0,
+      "maxPrice": null,
+      "priority": 2,
+      "notes": "",
+      "imageSrc": "https://cdn.shopify.com/s/files/1/1420/7006/files/sacred-sun-ear-jacket-gold-front.png?v=1790917183",
+      "status": "full",
+      "salePrice": null,
+      "checkedAt": "2026-11-24T21:39:28+00:00",
+      "scanNote": "$159. Not in the Black Friday collection so far. Page doesn't say if it's one earring or a pair",
+      "addedAt": "2026-11-24T21:39:28+00:00",
+      "sizeNote": "In stock",
+      "stockCheckedAt": "2026-11-24T21:39:28+00:00"
     }
   ],
   "schema": 2
