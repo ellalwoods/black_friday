@@ -34,5 +34,17 @@
     "promoIsFullPrice": true,
     "url": "https://help.jag.com.au/hc/en-us/articles/42425553661337-Online-Returns-in-Australia",
     "checked": "2026-11-23"
+  },
+  "Kirstin Ash": {
+    "window": "30 days from purchase, but not for earrings",
+    "windowShort": "no returns",
+    "fullShort": "earrings can't be returned",
+    "saleShort": "earrings can't be returned",
+    "fullPrice": "Earrings can't be returned for hygiene reasons. Other full-price pieces: refund or credit voucher within 30 days, unworn. Full-price pieces bought during a storewide discount can still be returned.",
+    "sale": "No change-of-mind returns on sale items.",
+    "other": "Only for purchases from kirstinash.com, not stockists. Engraved pieces are final. This is the policy on Kirstin Ash's NZ site; the AU page couldn't be checked.",
+    "promoIsFullPrice": true,
+    "url": "https://nz.kirstinash.com/pages/returns",
+    "checked": "2026-11-24"
   }
 }
